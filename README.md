@@ -5,9 +5,9 @@
 
 Flutter chat screen for EBChat Andorid and IOS projects.
 
-- Uses Intercom Android SDK Version `12.5.1`.
+- Uses Android SDK Version `12.5.1`.
 - The minimum Android SDK `minSdkVersion` required is 21.
-- Uses Intercom iOS SDK Version `13.0.0`.
+- Uses iOS SDK Version `13.0.0`.
 - The minimum iOS target version required is 13.
 
 ## Usage
