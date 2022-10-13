@@ -1,39 +1,76 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages). 
+# ebchat-mobile-flutter-sdk
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages). 
--->
+![Pub](https://img.shields.io/badge/pub-v0.0.1-informational)
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+Flutter chat screen for EBChat Andorid and IOS projects.
 
-## Features
-
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+- Uses Intercom Android SDK Version `12.5.1`.
+- The minimum Android SDK `minSdkVersion` required is 21.
+- Uses Intercom iOS SDK Version `13.0.0`.
+- The minimum iOS target version required is 13.
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
+Import `package:ebchat/ebchat.dart` and use the methods in `EBChatService` class.
 
+Example:
 ```dart
-const like = 'sample';
+import  'package:ebchat/ebchat.dart';
+import  'package:ebutler/models/user_model.dart';
+import  'package:flutter/material.dart';
+
+class  EbChatScreen  extends  StatefulWidget {
+const  EbChatScreen({Key? key, required  this.talkToEbutler}) : super(key: key);
+final  bool  talkToEbutler;
+@override
+State<EbChatScreen> createState() => _EbChatScreenState();
+}
+
+class  _EbChatScreenState  extends  State<EbChatScreen> {
+StreamChatClient? client;
+User? currentUser;
+String  ebchatKey ="EBCHAT_KEY";
+@override
+void  initState() {
+currentUser = User(
+id: "UniqueUserId",
+name: "userName",
+extraData: {
+"phone": "3249241317",
+//TODO: THIS FIELD IS REQUIRED
+"email": "exemple@email.com"});
+super.initState();}
+
+@override
+Widget  build(BuildContext  context) {
+return  Scaffold(
+resizeToAvoidBottomInset: true,
+appBar: AppBar(backgroundColor: const  Color(0xff214496)),
+body: FutureBuilder<String>(
+future: EBChatService.getCompanyStreamAcess(
+ebchatKey, widget.talkToEbutler),
+builder: (context, snapshot) {
+switch (snapshot.connectionState) {
+case  ConnectionState.waiting:
+return  const  Text('Loading....');
+default:
+if (snapshot.hasError) {
+return  Text('Error: ${snapshot.error}');
+} else {
+client = StreamChatClient(snapshot.data!);
+return  EBChatScreen(
+key: Key("UniqueUserId"),
+ebchatToken: ebchatKey,
+client: client,
+currentUser: currentUser!,
+rederictMessagesToEbutlerOperators: widget.talkToEbutler);
+					}
+				}
+			}),
+		);
+	}
+}
 ```
 
-## Additional information
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.

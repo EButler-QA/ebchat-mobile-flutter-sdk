@@ -4,7 +4,7 @@ import 'package:ebchat/src/lib/config/config.dart';
 import 'package:http/http.dart';
 import 'package:ebchat/src/lib/models/Company.dart';
 
-class StreamService {
+class EBChatService {
   static Future<String> getCompanyStreamAcess(
       String ebchatkey, bool talkToEbutler) async {
     Response response = await get(
