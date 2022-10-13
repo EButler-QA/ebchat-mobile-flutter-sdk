@@ -1,0 +1,20 @@
+import 'dart:convert';
+import 'package:ebchat/src/lib/auth/secret.dart';
+import 'package:ebchat/src/lib/config/config.dart';
+import 'package:http/http.dart';
+import 'package:ebchat/src/lib/models/Company.dart';
+
+class StreamService {
+  static Future<String> getCompanyStreamAcess(
+      String ebchatkey, bool talkToEbutler) async {
+    Response response = await get(
+      Uri.parse('${Config.ebchat_saas_api_url}fdb/getCompanyInfo'),
+      headers: <String, String>{
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'EBCHATKEY': talkToEbutler ? ebutlerEbchatKey : ebchatkey,
+      },
+    );
+    Company tmp = Company.fromMap(json.decode(response.body));
+    return tmp.streamkey!;
+  }
+}
