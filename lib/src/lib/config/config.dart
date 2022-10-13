@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:ebchat/src/lib/models/Company.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -29,6 +30,7 @@ class Config {
   static String ebchat_saas_api_url =
       "https://ebchat-saas.e-butler.com/ebchat_api/";
   static String? azureMapsApiKey;
+  static Company? currentCompany;
 
   static void setConfig(bool arabicApp, String? azurMap) {
     if (arabicApp) {

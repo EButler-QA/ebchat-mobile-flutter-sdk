@@ -214,7 +214,9 @@ class _ClosedChannelsListPagesState extends State<ClosedChannelsListPages> {
                           child: SizedBox(
                             height: 100,
                             width: 100,
-                            child: CircularProgressIndicator(),
+                            child: CircularProgressIndicator(
+                              color: AppColors.primary,
+                            ),
                           ),
                         ),
                       ),

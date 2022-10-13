@@ -62,7 +62,6 @@ class EBchatProvider with ChangeNotifier {
             ),
           )
           .first;
-      print(channels.length);
     }
 
     if (channels.isNotEmpty) {

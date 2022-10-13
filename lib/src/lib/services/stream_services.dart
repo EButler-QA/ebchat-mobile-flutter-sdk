@@ -4,8 +4,7 @@ import 'package:http/http.dart';
 import 'package:ebchat/src/lib/models/Company.dart';
 
 class EBChatService {
-  static Future<String> getCompanyStreamAcess(
-      String ebchatkey, bool talkToEbutler) async {
+  static Future<String> getCompanyStreamAcess(String ebchatkey) async {
     Response response = await get(
       Uri.parse('${Config.ebchat_saas_api_url}fdb/getCompanyInfo'),
       headers: <String, String>{
@@ -13,7 +12,7 @@ class EBChatService {
         'EBCHATKEY': ebchatkey,
       },
     );
-    Company tmp = Company.fromMap(json.decode(response.body));
-    return tmp.streamkey!;
+    Config.currentCompany = Company.fromMap(json.decode(response.body));
+    return Config.currentCompany!.streamkey!;
   }
 }

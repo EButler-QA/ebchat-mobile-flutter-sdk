@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:ebchat/src/lib/Theme/my_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
@@ -413,7 +414,9 @@ class _MessageListViewState extends State<CustomMessageListView> {
         messageFilter: widget.messageFilter,
         loadingBuilder: widget.loadingBuilder ??
             (context) => const Center(
-                  child: CircularProgressIndicator(),
+                  child: CircularProgressIndicator(
+                    color: AppColors.primary,
+                  ),
                 ),
         emptyBuilder: widget.emptyBuilder ??
             (context) => Center(
@@ -1417,7 +1420,9 @@ class _LoadingIndicator extends StatelessWidget {
             const Center(
               child: Padding(
                 padding: EdgeInsets.all(8),
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(
+                  color: AppColors.primary,
+                ),
               ),
             );
       },

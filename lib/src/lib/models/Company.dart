@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:ebchat/src/lib/models/Mascotte.dart';
 
 class Company {
   String? id;
@@ -6,20 +7,32 @@ class Company {
   String? image;
   String? streamkey;
   String? ebchatkey;
-  Company({this.id, this.name, this.image, this.streamkey, this.ebchatkey});
+  Mascotte? mascotte;
+  Company({
+    this.id,
+    this.name,
+    this.image,
+    this.streamkey,
+    this.ebchatkey,
+    this.mascotte,
+  });
 
-  Company copyWith(
-      {String? id,
-      String? name,
-      String? image,
-      String? streamkey,
-      String? ebchatkey}) {
+  Company copyWith({
+    String? id,
+    String? name,
+    String? image,
+    String? streamkey,
+    String? ebchatkey,
+    Mascotte? mascotte,
+  }) {
     return Company(
-        id: id ?? this.id,
-        name: name ?? this.name,
-        image: image ?? this.image,
-        streamkey: streamkey ?? this.streamkey,
-        ebchatkey: ebchatkey ?? this.ebchatkey);
+      id: id ?? this.id,
+      name: name ?? this.name,
+      image: image ?? this.image,
+      streamkey: streamkey ?? this.streamkey,
+      ebchatkey: ebchatkey ?? this.ebchatkey,
+      mascotte: mascotte ?? this.mascotte,
+    );
   }
 
   Map<String, dynamic> toMap() {
@@ -29,6 +42,7 @@ class Company {
       'image': image,
       'streamkey': streamkey,
       'ebchatkey': ebchatkey,
+      'mascotte': mascotte?.toMap(),
     };
   }
 
@@ -39,6 +53,8 @@ class Company {
       image: map['image'],
       streamkey: map['streamkey'],
       ebchatkey: map['ebchatkey'],
+      mascotte:
+          map['mascotte'] != null ? Mascotte.fromMap(map['mascotte']) : null,
     );
   }
 
@@ -60,11 +76,16 @@ class Company {
         other.id == id &&
         other.name == name &&
         other.image == image &&
-        other.streamkey == streamkey;
+        other.streamkey == streamkey &&
+        other.mascotte == mascotte;
   }
 
   @override
   int get hashCode {
-    return id.hashCode ^ name.hashCode ^ image.hashCode ^ streamkey.hashCode;
+    return id.hashCode ^
+        name.hashCode ^
+        image.hashCode ^
+        streamkey.hashCode ^
+        mascotte.hashCode;
   }
 }

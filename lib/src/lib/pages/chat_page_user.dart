@@ -219,7 +219,6 @@ class _ChatPageUserState extends State<ChatPageUser> {
                   .ebchatkey!);
         }
       } catch (e) {
-        print("//////////////");
         print(e);
       }
     } else {
@@ -295,243 +294,45 @@ class _ChatPageUserState extends State<ChatPageUser> {
                                 (attachment) => attachment.type == 'choices') !=
                             -1) {
                           return defaultMessage.copyWith(
-                            textBuilder: (context, message) {
-                              return Row(
-                                children: [
-                                  const Spacer(),
-                                  Expanded(
-                                    flex: 10,
-                                    child: Text(
-                                      message.text!,
-                                      textAlign: TextAlign.center,
-                                      style: GoogleFonts.poppins(
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 14,
-                                          color: Colors.black),
+                              textBuilder: (context, message) {
+                                return Row(
+                                  children: [
+                                    const Spacer(),
+                                    Expanded(
+                                      flex: 10,
+                                      child: Text(
+                                        message.text!,
+                                        textAlign: TextAlign.center,
+                                        style: GoogleFonts.poppins(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14,
+                                            color: Colors.black),
+                                      ),
                                     ),
-                                  ),
-                                  const Spacer()
-                                ],
-                              );
-                            },
-                            borderSide: const BorderSide(
-                              color: AppColors.secondary,
-                            ),
-                            customAttachmentBuilders: {
-                              'choices':
-                                  (context, defaultMessage, attachments) {
-                                final actions = attachments.first.actions;
-                                Message messageWithChoicesAttachement =
-                                    messages.firstWhere((msg) =>
-                                        msg.attachments.indexWhere(
-                                            (attachment) =>
-                                                attachment.type == 'choices') !=
-                                        -1);
+                                    const Spacer()
+                                  ],
+                                );
+                              },
+                              borderSide: const BorderSide(
+                                color: AppColors.secondary,
+                              ),
+                              customAttachmentBuilders: {
+                                'choices':
+                                    (context, defaultMessage, attachments) {
+                                  final actions = attachments.first.actions;
+                                  Message messageWithChoicesAttachement =
+                                      messages.firstWhere((msg) =>
+                                          msg.attachments.indexWhere(
+                                              (attachment) =>
+                                                  attachment.type ==
+                                                  'choices') !=
+                                          -1);
 
-                                List<Widget> actionsWidget = actions!.map((e) {
-                                  switch (e.type) {
-                                    case "form":
-                                      return Row(
-                                        children: [
-                                          const Spacer(),
-                                          ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                primary: e.value!
-                                                        .contains(";cancel")
-                                                    ? Colors.white
-                                                    : AppColors.secndaryLight,
-                                                onPrimary: e.value!
-                                                        .contains(";cancel")
-                                                    ? AppColors.secndaryLight
-                                                    : Colors.white,
-                                                shape: RoundedRectangleBorder(
-                                                  side: const BorderSide(
-                                                    color:
-                                                        AppColors.secndaryLight,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                              ),
-                                              onPressed: () {
-                                                showDialog(
-                                                  context: context,
-                                                  builder:
-                                                      (BuildContext context) {
-                                                    return UserInfoDialog(
-                                                      questionType: e.name,
-                                                      question:
-                                                          messageWithChoicesAttachement
-                                                                      .text ==
-                                                                  null
-                                                              ? e.name
-                                                              : messageWithChoicesAttachement
-                                                                  .text!,
-                                                    );
-                                                  },
-                                                ).then((value) {
-                                                  if (value != null &&
-                                                      value is String) {
-                                                    Provider.of<EBchatProvider>(
-                                                            context,
-                                                            listen: false)
-                                                        .globalChannel!
-                                                        .sendMessage(Message(
-                                                            text: value));
-                                                    Provider.of<EBchatProvider>(
-                                                            context,
-                                                            listen: false)
-                                                        .startBotFlow(
-                                                            {
-                                                          "cid": Provider.of<
-                                                                      EBchatProvider>(
-                                                                  context,
-                                                                  listen: false)
-                                                              .globalChannel!
-                                                              .cid!,
-                                                          "args": e.value!
-                                                              .replaceAll(
-                                                                  "/bot ", "")
-                                                              .toLowerCase(),
-                                                          "lang": cf.Config
-                                                                      .textDirection ==
-                                                                  TextDirection
-                                                                      .ltr
-                                                              ? "en"
-                                                              : "ar",
-                                                          "idMsgWithChoices":
-                                                              messageWithChoicesAttachement
-                                                                  .id
-                                                        },
-                                                            Provider.of<CompanyProvider>(
-                                                                    context,
-                                                                    listen:
-                                                                        false)
-                                                                .company!
-                                                                .ebchatkey!);
-                                                  } else if (value != null &&
-                                                      value == true) {
-                                                    Provider.of<EBchatProvider>(
-                                                            context,
-                                                            listen: false)
-                                                        .globalChannel!
-                                                        .sendMessage(Message(
-                                                            text: cf
-                                                                .getTranslated(
-                                                                    "Done")));
-                                                    Provider.of<EBchatProvider>(
-                                                            context,
-                                                            listen: false)
-                                                        .startBotFlow(
-                                                            {
-                                                          "cid": Provider.of<
-                                                                      EBchatProvider>(
-                                                                  context,
-                                                                  listen: false)
-                                                              .globalChannel!
-                                                              .cid!,
-                                                          "choiceSelected":
-                                                              cf.getTranslated(
-                                                                  "Done"),
-                                                          "args": e.value!
-                                                              .replaceAll(
-                                                                  "/bot ", "")
-                                                              .toLowerCase(),
-                                                          "lang": cf.Config
-                                                                      .textDirection ==
-                                                                  TextDirection
-                                                                      .ltr
-                                                              ? "en"
-                                                              : "ar",
-                                                          "idMsgWithChoices":
-                                                              messageWithChoicesAttachement
-                                                                  .id
-                                                        },
-                                                            Provider.of<CompanyProvider>(
-                                                                    context,
-                                                                    listen:
-                                                                        false)
-                                                                .company!
-                                                                .ebchatkey!);
-                                                  } else if (value
-                                                      is Attachment) {
-                                                    Provider.of<EBchatProvider>(
-                                                            context,
-                                                            listen: false)
-                                                        .globalChannel!
-                                                        .sendMessage(Message(
-                                                          attachments: [value],
-                                                        ))
-                                                        .then((value) =>
-                                                            Provider.of<EBchatProvider>(
-                                                                    context,
-                                                                    listen:
-                                                                        false)
-                                                                .startBotFlow(
-                                                                    {
-                                                                  "cid": Provider.of<
-                                                                              EBchatProvider>(
-                                                                          context,
-                                                                          listen:
-                                                                              false)
-                                                                      .globalChannel!
-                                                                      .cid!,
-                                                                  "args": e
-                                                                      .value!
-                                                                      .replaceAll(
-                                                                          "/bot ",
-                                                                          "")
-                                                                      .toLowerCase(),
-                                                                  "lang": cf.Config
-                                                                              .textDirection ==
-                                                                          TextDirection
-                                                                              .ltr
-                                                                      ? "en"
-                                                                      : "ar",
-                                                                  "idMsgWithChoices":
-                                                                      messageWithChoicesAttachement
-                                                                          .id
-                                                                },
-                                                                    Provider.of<CompanyProvider>(
-                                                                            context,
-                                                                            listen:
-                                                                                false)
-                                                                        .company!
-                                                                        .ebchatkey!));
-                                                  }
-                                                });
-                                              },
-                                              child: SizedBox(
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width -
-                                                      200,
-                                                  child: Padding(
-                                                    padding: const EdgeInsets
-                                                            .symmetric(
-                                                        vertical: 3.0),
-                                                    child: Center(
-                                                        child: Text(
-                                                      e.text,
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                        fontWeight:
-                                                            FontWeight.w400,
-                                                        fontSize: 14,
-                                                      ),
-                                                    )),
-                                                  ))),
-                                          const Spacer()
-                                        ],
-                                      );
-
-                                    default:
-                                      return Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 5.0),
-                                        child: Row(
+                                  List<Widget> actionsWidget =
+                                      actions!.map((e) {
+                                    switch (e.type) {
+                                      case "form":
+                                        return Row(
                                           children: [
                                             const Spacer(),
                                             ElevatedButton(
@@ -555,42 +356,152 @@ class _ChatPageUserState extends State<ChatPageUser> {
                                                   ),
                                                 ),
                                                 onPressed: () {
-                                                  Provider.of<EBchatProvider>(
-                                                          context,
-                                                          listen: false)
-                                                      .globalChannel!
-                                                      .sendMessage(Message(
-                                                          text: e.text));
-                                                  Provider.of<EBchatProvider>(
-                                                          context,
-                                                          listen: false)
-                                                      .startBotFlow(
-                                                          {
-                                                        "cid": Provider.of<
-                                                                    EBchatProvider>(
-                                                                context,
-                                                                listen: false)
-                                                            .globalChannel!
-                                                            .cid!,
-                                                        "args": e.value!
-                                                            .replaceAll(
-                                                                "/bot ", "")
-                                                            .toLowerCase(),
-                                                        "lang": cf.Config
-                                                                    .textDirection ==
-                                                                TextDirection
-                                                                    .ltr
-                                                            ? "en"
-                                                            : "ar",
-                                                        "idMsgWithChoices":
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return UserInfoDialog(
+                                                        questionType: e.name,
+                                                        question:
                                                             messageWithChoicesAttachement
-                                                                .id
-                                                      },
-                                                          Provider.of<CompanyProvider>(
-                                                                  context,
-                                                                  listen: false)
-                                                              .company!
-                                                              .ebchatkey!);
+                                                                        .text ==
+                                                                    null
+                                                                ? e.name
+                                                                : messageWithChoicesAttachement
+                                                                    .text!,
+                                                      );
+                                                    },
+                                                  ).then((value) {
+                                                    if (value != null &&
+                                                        value is String) {
+                                                      Provider.of<EBchatProvider>(
+                                                              context,
+                                                              listen: false)
+                                                          .globalChannel!
+                                                          .sendMessage(Message(
+                                                              text: value));
+                                                      Provider.of<EBchatProvider>(
+                                                              context,
+                                                              listen: false)
+                                                          .startBotFlow(
+                                                              {
+                                                            "cid": Provider.of<
+                                                                        EBchatProvider>(
+                                                                    context,
+                                                                    listen:
+                                                                        false)
+                                                                .globalChannel!
+                                                                .cid!,
+                                                            "args": e.value!
+                                                                .replaceAll(
+                                                                    "/bot ", "")
+                                                                .toLowerCase(),
+                                                            "lang": cf.Config
+                                                                        .textDirection ==
+                                                                    TextDirection
+                                                                        .ltr
+                                                                ? "en"
+                                                                : "ar",
+                                                            "idMsgWithChoices":
+                                                                messageWithChoicesAttachement
+                                                                    .id
+                                                          },
+                                                              Provider.of<CompanyProvider>(
+                                                                      context,
+                                                                      listen:
+                                                                          false)
+                                                                  .company!
+                                                                  .ebchatkey!);
+                                                    } else if (value != null &&
+                                                        value == true) {
+                                                      Provider.of<EBchatProvider>(
+                                                              context,
+                                                              listen: false)
+                                                          .globalChannel!
+                                                          .sendMessage(Message(
+                                                              text: cf
+                                                                  .getTranslated(
+                                                                      "Done")));
+                                                      Provider.of<EBchatProvider>(
+                                                              context,
+                                                              listen: false)
+                                                          .startBotFlow(
+                                                              {
+                                                            "cid": Provider.of<
+                                                                        EBchatProvider>(
+                                                                    context,
+                                                                    listen:
+                                                                        false)
+                                                                .globalChannel!
+                                                                .cid!,
+                                                            "choiceSelected": cf
+                                                                .getTranslated(
+                                                                    "Done"),
+                                                            "args": e.value!
+                                                                .replaceAll(
+                                                                    "/bot ", "")
+                                                                .toLowerCase(),
+                                                            "lang": cf.Config
+                                                                        .textDirection ==
+                                                                    TextDirection
+                                                                        .ltr
+                                                                ? "en"
+                                                                : "ar",
+                                                            "idMsgWithChoices":
+                                                                messageWithChoicesAttachement
+                                                                    .id
+                                                          },
+                                                              Provider.of<CompanyProvider>(
+                                                                      context,
+                                                                      listen:
+                                                                          false)
+                                                                  .company!
+                                                                  .ebchatkey!);
+                                                    } else if (value
+                                                        is Attachment) {
+                                                      Provider.of<EBchatProvider>(
+                                                              context,
+                                                              listen: false)
+                                                          .globalChannel!
+                                                          .sendMessage(Message(
+                                                            attachments: [
+                                                              value
+                                                            ],
+                                                          ))
+                                                          .then((value) =>
+                                                              Provider.of<EBchatProvider>(
+                                                                      context,
+                                                                      listen:
+                                                                          false)
+                                                                  .startBotFlow(
+                                                                      {
+                                                                    "cid": Provider.of<EBchatProvider>(
+                                                                            context,
+                                                                            listen:
+                                                                                false)
+                                                                        .globalChannel!
+                                                                        .cid!,
+                                                                    "args": e
+                                                                        .value!
+                                                                        .replaceAll(
+                                                                            "/bot ",
+                                                                            "")
+                                                                        .toLowerCase(),
+                                                                    "lang": cf.Config.textDirection ==
+                                                                            TextDirection.ltr
+                                                                        ? "en"
+                                                                        : "ar",
+                                                                    "idMsgWithChoices":
+                                                                        messageWithChoicesAttachement
+                                                                            .id
+                                                                  },
+                                                                      Provider.of<CompanyProvider>(
+                                                                              context,
+                                                                              listen: false)
+                                                                          .company!
+                                                                          .ebchatkey!));
+                                                    }
+                                                  });
                                                 },
                                                 child: SizedBox(
                                                     width:
@@ -617,26 +528,259 @@ class _ChatPageUserState extends State<ChatPageUser> {
                                                     ))),
                                             const Spacer()
                                           ],
-                                        ),
-                                      );
-                                  }
-                                }).toList();
+                                        );
 
-                                return Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 4.0),
-                                  child: Column(
-                                    children: actionsWidget,
-                                  ),
+                                      default:
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 5.0),
+                                          child: Row(
+                                            children: [
+                                              const Spacer(),
+                                              ElevatedButton(
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    primary: e.value!
+                                                            .contains(";cancel")
+                                                        ? Colors.white
+                                                        : AppColors
+                                                            .secndaryLight,
+                                                    onPrimary: e.value!
+                                                            .contains(";cancel")
+                                                        ? AppColors
+                                                            .secndaryLight
+                                                        : Colors.white,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      side: const BorderSide(
+                                                        color: AppColors
+                                                            .secndaryLight,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                    ),
+                                                  ),
+                                                  onPressed: () {
+                                                    Provider.of<EBchatProvider>(
+                                                            context,
+                                                            listen: false)
+                                                        .globalChannel!
+                                                        .sendMessage(Message(
+                                                            text: e.text));
+                                                    Provider.of<EBchatProvider>(
+                                                            context,
+                                                            listen: false)
+                                                        .startBotFlow(
+                                                            {
+                                                          "cid": Provider.of<
+                                                                      EBchatProvider>(
+                                                                  context,
+                                                                  listen: false)
+                                                              .globalChannel!
+                                                              .cid!,
+                                                          "args": e.value!
+                                                              .replaceAll(
+                                                                  "/bot ", "")
+                                                              .toLowerCase(),
+                                                          "lang": cf.Config
+                                                                      .textDirection ==
+                                                                  TextDirection
+                                                                      .ltr
+                                                              ? "en"
+                                                              : "ar",
+                                                          "idMsgWithChoices":
+                                                              messageWithChoicesAttachement
+                                                                  .id
+                                                        },
+                                                            Provider.of<CompanyProvider>(
+                                                                    context,
+                                                                    listen:
+                                                                        false)
+                                                                .company!
+                                                                .ebchatkey!);
+                                                  },
+                                                  child: SizedBox(
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width -
+                                                              200,
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .symmetric(
+                                                                vertical: 3.0),
+                                                        child: Center(
+                                                            child: Text(
+                                                          e.text,
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                          style: GoogleFonts
+                                                              .poppins(
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                            fontSize: 14,
+                                                          ),
+                                                        )),
+                                                      ))),
+                                              const Spacer()
+                                            ],
+                                          ),
+                                        );
+                                    }
+                                  }).toList();
+
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 4.0),
+                                    child: Column(
+                                      children: actionsWidget,
+                                    ),
+                                  );
+                                }
+                              },
+                              userAvatarBuilder: (p0, p1) {
+                                if (p1.id == cf.Config.alfredId) {
+                                  return CircleAvatar(
+                                    radius: 18,
+                                    backgroundImage: NetworkImage(
+                                        Provider.of<CompanyProvider>(context,
+                                                listen: false)
+                                            .company!
+                                            .mascotte!
+                                            .image!),
+                                    backgroundColor:
+                                        Theme.of(context).cardColor,
+                                  );
+                                }
+                                return Avatar.small(
+                                  user: p1,
                                 );
-                              }
+                              },
+                              usernameBuilder: (_, message) {
+                                if (message.user!.id == cf.Config.alfredId) {
+                                  return Text(
+                                    Provider.of<CompanyProvider>(context,
+                                            listen: false)
+                                        .company!
+                                        .mascotte!
+                                        .name!,
+                                    maxLines: 1,
+                                    key: Key('username'),
+                                    overflow: TextOverflow.ellipsis,
+                                  );
+                                }
+                                return Text(
+                                  message.user?.name ?? '',
+                                  maxLines: 1,
+                                  key: Key('username'),
+                                  overflow: TextOverflow.ellipsis,
+                                );
+                              });
+                        }
+                        return defaultMessage.copyWith(
+                            customAttachmentBuilders: {
+                              'voicenote':
+                                  (context, defaultMessage, attachments) {
+                                final url = attachments.first.assetUrl;
+
+                                if (url == null) {
+                                  return const AudioLoadingMessage();
+                                }
+                                return Card(
+                                    elevation: 0,
+                                    color: Colors.grey.shade300,
+                                    child: Column(children: [
+                                      if (defaultMessage.attachments.indexWhere(
+                                              (element) => element
+                                                  .actions!.isNotEmpty) !=
+                                          -1)
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: SizedBox(
+                                                height: 50,
+                                                child: TextButton(
+                                                  onPressed: () {
+                                                    Provider.of<EBchatProvider>(
+                                                            context,
+                                                            listen: false)
+                                                        .globalChannel!
+                                                        .state!
+                                                        .removeMessage(
+                                                            defaultMessage);
+                                                  },
+                                                  child: Text(
+                                                    "Cancel",
+                                                    style: StreamChatTheme.of(
+                                                            context)
+                                                        .textTheme
+                                                        .bodyBold
+                                                        .copyWith(
+                                                          color: StreamChatTheme
+                                                                  .of(context)
+                                                              .colorTheme
+                                                              .textHighEmphasis
+                                                              .withOpacity(0.5),
+                                                        ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              width: 0.5,
+                                              color: StreamChatTheme.of(context)
+                                                  .colorTheme
+                                                  .textHighEmphasis
+                                                  .withOpacity(0.2),
+                                              height: 50,
+                                            ),
+                                            Expanded(
+                                              child: SizedBox(
+                                                height: 50,
+                                                child: TextButton(
+                                                  onPressed: () {
+                                                    sendVoiceNote(
+                                                        defaultMessage, true);
+                                                  },
+                                                  child: Text(
+                                                    "Send",
+                                                    style: TextStyle(
+                                                      color: StreamChatTheme.of(
+                                                              context)
+                                                          .colorTheme
+                                                          .accentPrimary,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      AudioPlayerMessage(
+                                          source:
+                                              AudioSource.uri(Uri.parse(url)),
+                                          fileSize:
+                                              attachments.first.mimeType ==
+                                                      "video/webm"
+                                                  ? attachments.first.fileSize!
+                                                  : 0),
+                                    ]));
+                              },
                             },
                             userAvatarBuilder: (p0, p1) {
                               if (p1.id == cf.Config.alfredId) {
                                 return CircleAvatar(
                                   radius: 18,
-                                  backgroundImage: AssetImage(
-                                      package: "ebchat", "assets/alfred.png"),
+                                  backgroundImage: NetworkImage(
+                                      Provider.of<CompanyProvider>(context,
+                                              listen: false)
+                                          .company!
+                                          .mascotte!
+                                          .image!),
                                   backgroundColor: Theme.of(context).cardColor,
                                 );
                               }
@@ -644,111 +788,26 @@ class _ChatPageUserState extends State<ChatPageUser> {
                                 user: p1,
                               );
                             },
-                          );
-                        }
-                        return defaultMessage.copyWith(
-                          customAttachmentBuilders: {
-                            'voicenote':
-                                (context, defaultMessage, attachments) {
-                              final url = attachments.first.assetUrl;
-
-                              if (url == null) {
-                                return const AudioLoadingMessage();
+                            usernameBuilder: (_, message) {
+                              if (message.user!.id == cf.Config.alfredId) {
+                                return Text(
+                                  Provider.of<CompanyProvider>(context,
+                                          listen: false)
+                                      .company!
+                                      .mascotte!
+                                      .name!,
+                                  maxLines: 1,
+                                  key: Key('username'),
+                                  overflow: TextOverflow.ellipsis,
+                                );
                               }
-                              return Card(
-                                  elevation: 0,
-                                  color: Colors.grey.shade300,
-                                  child: Column(children: [
-                                    if (defaultMessage.attachments.indexWhere(
-                                            (element) =>
-                                                element.actions!.isNotEmpty) !=
-                                        -1)
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: SizedBox(
-                                              height: 50,
-                                              child: TextButton(
-                                                onPressed: () {
-                                                  Provider.of<EBchatProvider>(
-                                                          context,
-                                                          listen: false)
-                                                      .globalChannel!
-                                                      .state!
-                                                      .removeMessage(
-                                                          defaultMessage);
-                                                },
-                                                child: Text(
-                                                  "Cancel",
-                                                  style: StreamChatTheme.of(
-                                                          context)
-                                                      .textTheme
-                                                      .bodyBold
-                                                      .copyWith(
-                                                        color: StreamChatTheme
-                                                                .of(context)
-                                                            .colorTheme
-                                                            .textHighEmphasis
-                                                            .withOpacity(0.5),
-                                                      ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          Container(
-                                            width: 0.5,
-                                            color: StreamChatTheme.of(context)
-                                                .colorTheme
-                                                .textHighEmphasis
-                                                .withOpacity(0.2),
-                                            height: 50,
-                                          ),
-                                          Expanded(
-                                            child: SizedBox(
-                                              height: 50,
-                                              child: TextButton(
-                                                onPressed: () {
-                                                  sendVoiceNote(
-                                                      defaultMessage, true);
-                                                },
-                                                child: Text(
-                                                  "Send",
-                                                  style: TextStyle(
-                                                    color: StreamChatTheme.of(
-                                                            context)
-                                                        .colorTheme
-                                                        .accentPrimary,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    AudioPlayerMessage(
-                                        source: AudioSource.uri(Uri.parse(url)),
-                                        fileSize: attachments.first.mimeType ==
-                                                "video/webm"
-                                            ? attachments.first.fileSize!
-                                            : 0),
-                                  ]));
-                            },
-                          },
-                          userAvatarBuilder: (p0, p1) {
-                            if (p1.id == cf.Config.alfredId) {
-                              return CircleAvatar(
-                                radius: 18,
-                                backgroundImage: AssetImage(
-                                    package: "ebchat", "assets/alfred.png"),
-                                backgroundColor: Theme.of(context).cardColor,
+                              return Text(
+                                message.user?.name ?? '',
+                                maxLines: 1,
+                                key: Key('username'),
+                                overflow: TextOverflow.ellipsis,
                               );
-                            }
-                            return Avatar.small(
-                              user: p1,
-                            );
-                          },
-                        );
+                            });
                       },
                       onMessageSwiped: (message) {
                         setState(() {
@@ -757,45 +816,65 @@ class _ChatPageUserState extends State<ChatPageUser> {
                       },
                     ),
                   ),
-                  if (typing && typingUser != null)
-                    Column(
-                      children: [
-                        Row(
+                  (typing && typingUser != null)
+                      ? Column(
                           children: [
-                            const SizedBox(
-                              width: 20,
-                            ),
-                            const Icon(
-                              Icons.edit,
-                              color: AppColors.archive,
-                              size: 10,
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Avatar.verySmall(user: typingUser!),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              typingUser!.name,
-                              style: GoogleFonts.poppins(
+                            Row(
+                              children: [
+                                const SizedBox(
+                                  width: 20,
+                                ),
+                                const Icon(
+                                  Icons.edit,
                                   color: AppColors.archive,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 10),
+                                  size: 10,
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                Avatar.verySmall(user: typingUser!),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                Text(
+                                  typingUser!.name,
+                                  style: GoogleFonts.poppins(
+                                      color: AppColors.archive,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 10),
+                                ),
+                                Text(
+                                  " is Typing...",
+                                  style: GoogleFonts.poppins(
+                                      color: Colors.grey, fontSize: 10),
+                                )
+                              ],
                             ),
-                            Text(
-                              " is Typing...",
-                              style: GoogleFonts.poppins(
-                                  color: Colors.grey, fontSize: 10),
-                            )
+                            const SizedBox(
+                              height: 20,
+                            ),
+                          ],
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: Image.asset(
+                                  package: "ebchat", "assets/blueMustache.png"),
+                            ),
+                            const SizedBox(
+                              width: 8,
+                            ),
+                            Text("Powered By EB Chat",
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 11,
+                                )),
                           ],
                         ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                      ],
-                    ),
                   if (recordingStarted)
                     GestureDetector(
                       onTap: () => stop(),
@@ -990,7 +1069,9 @@ class _ChatPageUserState extends State<ChatPageUser> {
             ),
           )
         : const Center(
-            child: CircularProgressIndicator(),
+            child: CircularProgressIndicator(
+              color: AppColors.primary,
+            ),
           );
   }
 
