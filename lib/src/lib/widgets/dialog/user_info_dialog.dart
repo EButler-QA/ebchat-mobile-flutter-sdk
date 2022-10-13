@@ -277,75 +277,79 @@ class _SetvalueDialogState extends State<UserInfoDialog> {
                         ),
                       ),
                     ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        setState(() {
-                          loading = true;
-                        });
-                        lcp.Location location = lcp.Location();
+                    if (Config.azureMapsApiKey != null)
+                      ElevatedButton(
+                        onPressed: () async {
+                          setState(() {
+                            loading = true;
+                          });
+                          lcp.Location location = lcp.Location();
 
-                        bool _serviceEnabled;
-                        lcp.PermissionStatus _permissionGranted;
-                        lcp.LocationData _locationData;
+                          bool _serviceEnabled;
+                          lcp.PermissionStatus _permissionGranted;
+                          lcp.LocationData _locationData;
 
-                        _serviceEnabled = await location.serviceEnabled();
-                        if (!_serviceEnabled) {
-                          _serviceEnabled = await location.requestService();
+                          _serviceEnabled = await location.serviceEnabled();
                           if (!_serviceEnabled) {
-                            return;
+                            _serviceEnabled = await location.requestService();
+                            if (!_serviceEnabled) {
+                              return;
+                            }
                           }
-                        }
 
-                        _permissionGranted = await location.hasPermission();
-                        if (_permissionGranted == lcp.PermissionStatus.denied) {
-                          _permissionGranted =
-                              await location.requestPermission();
-                          if (_permissionGranted !=
-                              lcp.PermissionStatus.granted) {
-                            return;
+                          _permissionGranted = await location.hasPermission();
+                          if (_permissionGranted ==
+                              lcp.PermissionStatus.denied) {
+                            _permissionGranted =
+                                await location.requestPermission();
+                            if (_permissionGranted !=
+                                lcp.PermissionStatus.granted) {
+                              return;
+                            }
                           }
-                        }
-                        _locationData = await location.getLocation();
-                        LatLng currentPositon = LatLng(
-                            _locationData.latitude!, _locationData.longitude!);
+                          _locationData = await location.getLocation();
+                          LatLng currentPositon = LatLng(
+                              _locationData.latitude!,
+                              _locationData.longitude!);
 
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => EbutlerMap(currentPositon)),
-                        ).then((value) {
-                          if (value != null) {
-                            LatLng selectedPos = value as LatLng;
-                            Navigator.of(context).pop(
-                                "http://maps.google.com/maps?q=${selectedPos.latitude},${selectedPos.longitude}");
-                          }
-                        });
-                      },
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.white,
-                        onPrimary: AppColors.secndaryLight,
-                        shape: RoundedRectangleBorder(
-                          side: const BorderSide(
-                            color: AppColors.secndaryLight,
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    EbutlerMap(currentPositon)),
+                          ).then((value) {
+                            if (value != null) {
+                              LatLng selectedPos = value as LatLng;
+                              Navigator.of(context).pop(
+                                  "http://maps.google.com/maps?q=${selectedPos.latitude},${selectedPos.longitude}");
+                            }
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.white,
+                          onPrimary: AppColors.secndaryLight,
+                          shape: RoundedRectangleBorder(
+                            side: const BorderSide(
+                              color: AppColors.secndaryLight,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.map,
+                              ),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              Text(getTranslated("Send location"))
+                            ],
+                          ),
                         ),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.map,
-                            ),
-                            const SizedBox(
-                              width: 5,
-                            ),
-                            Text(getTranslated("Send location"))
-                          ],
-                        ),
-                      ),
-                    ),
                   ],
                 ),
         ));

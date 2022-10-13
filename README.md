@@ -21,8 +21,7 @@ import  'package:ebutler/models/user_model.dart';
 import  'package:flutter/material.dart';
 
 class  EbChatScreen  extends  StatefulWidget {
-const  EbChatScreen({Key? key, required  this.talkToEbutler}) : super(key: key);
-final  bool  talkToEbutler;
+const  EbChatScreen({Key? key}) : super(key: key);
 @override
 State<EbChatScreen> createState() => _EbChatScreenState();
 }
@@ -31,6 +30,7 @@ class  _EbChatScreenState  extends  State<EbChatScreen> {
 StreamChatClient? client;
 User? currentUser;
 String  ebchatKey ="EBCHAT_KEY";
+String azureMapsApiKey="azureMapsApiKey";
 @override
 void  initState() {
 currentUser = User(
@@ -49,7 +49,7 @@ resizeToAvoidBottomInset: true,
 appBar: AppBar(backgroundColor: const  Color(0xff214496)),
 body: FutureBuilder<String>(
 future: EBChatService.getCompanyStreamAcess(
-ebchatKey, widget.talkToEbutler),
+ebchatKey),
 builder: (context, snapshot) {
 switch (snapshot.connectionState) {
 case  ConnectionState.waiting:
@@ -64,7 +64,7 @@ key: Key("UniqueUserId"),
 ebchatToken: ebchatKey,
 client: client,
 currentUser: currentUser!,
-rederictMessagesToEbutlerOperators: widget.talkToEbutler);
+azureMapsApiKey:azureMapsApiKey);
 					}
 				}
 			}),

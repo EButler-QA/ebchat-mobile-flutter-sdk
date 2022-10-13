@@ -15,8 +15,8 @@ class EBChatScreen extends StatefulWidget {
     required this.ebchatToken,
     required this.client,
     required this.currentUser,
+    this.azureMapsApiKey,
     this.arabicApp = false,
-    this.rederictMessagesToEbutlerOperators = false,
   }) : super(key: key);
 
   ///EBCHAT company Token
@@ -31,8 +31,8 @@ class EBChatScreen extends StatefulWidget {
   ///Display the app in arabic
   final bool arabicApp;
 
-  ///If this value is set to true, the conversations and it's messages will be handled by EButler LifeStyle managers
-  final bool rederictMessagesToEbutlerOperators;
+  //Your azure maps key
+  final String? azureMapsApiKey;
 
   @override
   _EBChatScreenState createState() => _EBChatScreenState();
@@ -42,12 +42,10 @@ class _EBChatScreenState extends State<EBChatScreen> {
   final AppTheme appTheme = AppTheme();
   bool moduleInitalized = false;
   Future<void> initPackage(BuildContext mcontext) async {
-    Config.setConfig(widget.arabicApp);
+    Config.setConfig(widget.arabicApp, widget.azureMapsApiKey);
     await loadTextString();
-    Provider.of<EBchatProvider>(mcontext, listen: false)
-        .setRedirectToEbutler(widget.rederictMessagesToEbutlerOperators);
-    await Provider.of<CompanyProvider>(mcontext, listen: false).setCompany(
-        widget.ebchatToken, widget.rederictMessagesToEbutlerOperators);
+    await Provider.of<CompanyProvider>(mcontext, listen: false)
+        .setCompany(widget.ebchatToken);
     Provider.of<EBchatProvider>(mcontext, listen: false)
         .setCurrentUser(widget.currentUser, mounted);
     return;

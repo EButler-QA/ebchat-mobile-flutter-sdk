@@ -26,19 +26,15 @@ class Config {
   static String virtual_intrest = "";
   static TextDirection textDirection = TextDirection.ltr;
   static String languageCode = "en";
-//prod
-//static String ebchat_saas_api_url = "https://ebchat-saas.e-butler.com/ebchat_api/";
-//test
   static String ebchat_saas_api_url =
-      "https://ebchat-saas-test.e-butler.com/ebchat_api/";
-//localHost
-  //static String ebchat_saas_api_url = "https://6f0e-41-228-223-212.ngrok.io/";
-// "http://localhost:4001/";
+      "https://ebchat-saas.e-butler.com/ebchat_api/";
+  static String? azureMapsApiKey;
 
-  static void setConfig(bool arabicApp) {
+  static void setConfig(bool arabicApp, String? azurMap) {
     if (arabicApp) {
       languageCode = "ar";
       textDirection = TextDirection.rtl;
     }
+    azureMapsApiKey = azurMap;
   }
 }

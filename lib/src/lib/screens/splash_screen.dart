@@ -1,8 +1,5 @@
 import 'dart:async';
-import 'package:ebchat/src/lib/Theme/my_theme.dart';
-import 'package:ebchat/src/lib/auth/secret.dart';
 import 'package:ebchat/src/lib/config/config.dart';
-import 'package:ebchat/src/lib/pages/categorie_page.dart';
 import 'package:ebchat/src/lib/pages/chat_page_user.dart';
 import 'package:ebchat/src/lib/pages/home_page_user.dart';
 import 'package:ebchat/src/lib/providers/company_provider.dart';

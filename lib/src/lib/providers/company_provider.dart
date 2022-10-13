@@ -6,13 +6,8 @@ class CompanyProvider extends ChangeNotifier {
   Company? company;
   final CompanyService companyService = CompanyService();
 
-  Future<Company> setCompany(
-      String ebchatkey, bool rederictMessagesToEbutlerOperators) async {
-    if (!rederictMessagesToEbutlerOperators) {
-      company = await companyService.getCompany(ebchatkey);
-    } else {
-      company = await companyService.getEbutlerCompany();
-    }
+  Future<Company> setCompany(String ebchatkey) async {
+    company = await companyService.getCompany(ebchatkey);
     return company!;
   }
 }

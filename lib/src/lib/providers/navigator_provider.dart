@@ -1,4 +1,3 @@
-import 'package:ebchat/src/lib/auth/secret.dart';
 import 'package:ebchat/src/lib/providers/company_provider.dart';
 import 'package:ebchat/src/lib/services/chat_services.dart';
 import 'package:flutter/material.dart';
@@ -9,11 +8,6 @@ class EBchatProvider with ChangeNotifier {
   Channel? globalChannel;
   User? currentUser;
   final ChatSerivice chatSerivice = ChatSerivice();
-  bool rederictMessagesToEbutlerOperators = false;
-
-  setRedirectToEbutler(bool tmp) {
-    rederictMessagesToEbutlerOperators = tmp;
-  }
 
 //EBCHAT SAAS BACKEND
 

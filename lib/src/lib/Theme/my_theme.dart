@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -73,7 +72,10 @@ class AppTheme {
         ),
         scaffoldBackgroundColor: _LightColors.background,
         elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(primary: AppColors.primary),
+          style: ButtonStyle(
+            backgroundColor:
+                MaterialStateProperty.all<Color>(AppColors.primary),
+          ),
         ),
         cardColor: _LightColors.card,
         primaryTextTheme: const TextTheme(
@@ -103,7 +105,10 @@ class AppTheme {
         ),
         scaffoldBackgroundColor: _DarkColors.background,
         elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(primary: AppColors.primary),
+          style: ButtonStyle(
+            backgroundColor:
+                MaterialStateProperty.all<Color>(AppColors.primary),
+          ),
         ),
         cardColor: _DarkColors.card,
         primaryTextTheme: const TextTheme(
