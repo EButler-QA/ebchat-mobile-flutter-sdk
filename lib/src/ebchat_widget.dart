@@ -64,29 +64,18 @@ class _EBChatScreenState extends State<EBChatWidget> {
         ),
       ],
       child: Builder(builder: (context) {
-        return StreamChat(
-          client: widget.client!,
-          streamChatThemeData: StreamChatThemeData(
-            messageListViewTheme: const StreamMessageListViewThemeData(
-              backgroundColor: Color(0xFFF8F8F8),
-            ),
-            channelListViewTheme: const StreamChannelListViewThemeData(
-              backgroundColor: Color(0xFFF8F8F8),
-            ),
-          ),
-          child: FutureBuilder(
-              future: initPackage(context),
-              builder: (context, snapshot) {
-                switch (snapshot.connectionState) {
-                  case ConnectionState.waiting:
-                    return Center(
-                      child: EbutlerProgress(),
-                    );
-                  default:
-                    return const SplashScreen();
-                }
-              }),
-        );
+        return FutureBuilder(
+            future: initPackage(context),
+            builder: (context, snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.waiting:
+                  return Center(
+                    child: EbutlerProgress(),
+                  );
+                default:
+                  return const SplashScreen();
+              }
+            });
       }),
     );
   }

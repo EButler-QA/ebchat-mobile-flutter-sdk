@@ -1,7 +1,7 @@
 
 # ebchat-mobile-flutter-sdk
 
-![Pub](https://img.shields.io/badge/pub-v0.1.0+1-informational)
+![Pub](https://img.shields.io/badge/pub-v1.0.0+1-informational)
 
 Flutter chat screen for EBChat Andorid and IOS projects.
 
@@ -14,18 +14,24 @@ Flutter chat screen for EBChat Andorid and IOS projects.
 
 Import `package:ebchat/ebchat.dart` and use the methods in `EBChatService` class.
 
-Example:
+
+
 main.dart:
 ```dart
+import 'package:ebchat/ebchat.dart';
 import 'package:flutter/material.dart';
 import 'ebchat_screen.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  String ebchatKey =
+      "EBCHATKEY";
+  StreamChatClient? ebchatClient= await EBChatService.getWebsocketClient(ebchatKey);
+  runApp(MyApp(ebchatClient: ebchatClient));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  MyApp({Key? key, required this.ebchatClient}) : super(key: key);
+  StreamChatClient? ebchatClient;
 
   // This widget is the root of your application.
   @override
@@ -35,46 +41,65 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Scaffold(
-        body: Builder(builder: (context) {
-          return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => EbChatScreen()));
-                    },
-                    child: SizedBox(
-                      height: 50,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.chat),
-                          SizedBox(
-                            width: 7,
-                          ),
-                          Text("Open Chat",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 13))
-                        ],
-                      ),
+      builder: (context, child) {
+        return Scaffold(
+          body: ebchatClient != null
+              ? StreamChat(
+                  client: ebchatClient!,
+                  streamChatThemeData: StreamChatThemeData(
+                    messageListViewTheme: const StreamMessageListViewThemeData(
+                      backgroundColor: Color(0xFFF8F8F8),
+                    ),
+                    channelListViewTheme: const StreamChannelListViewThemeData(
+                      backgroundColor: Color(0xFFF8F8F8),
                     ),
                   ),
+                  child: child,
                 )
-              ]);
-        }),
-      ),
+              : const Center(
+                  child: Text("Please double check you EBCHATKEY"),
+                ),
+        );
+      },
+      home: Builder(builder: (context) {
+        return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: ElevatedButton(
+                  onPressed: () async {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => EbChatScreen()));
+                  },
+                  child: SizedBox(
+                    height: 50,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.chat),
+                        SizedBox(
+                          width: 7,
+                        ),
+                        Text("Open Chat",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 13))
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            ]);
+      }),
     );
   }
 }
+
 ```
 ebchat_screen.dart:
 ```dart
@@ -88,9 +113,9 @@ class EbChatScreen extends StatefulWidget {
 }
 
 class _EbChatScreenState extends State<EbChatScreen> {
-  StreamChatClient? client;
+  StreamChatClient? ebchatClient;
   User? currentUser;
-  String ebchatKey ="EBCHATKEY";
+  String ebchatKey = "EBCHATKEY";
 
   String azureMapsApiKey = "AZUREMAPSKEY";
   @override
@@ -106,9 +131,8 @@ class _EbChatScreenState extends State<EbChatScreen> {
   }
 
   Future<void> initilizeClient() async {
-    String key = await EBChatService.getCompanyStreamAcess(ebchatKey);
-    client = StreamChatClient(key);
-    client!
+    ebchatClient = await EBChatService.getWebsocketClient(ebchatKey);
+    ebchatClient!
         .on(
       EventType.messageNew,
       EventType.notificationMessageNew,
@@ -118,7 +142,7 @@ class _EbChatScreenState extends State<EbChatScreen> {
     });
     if (mounted) {
       setState(() {
-        client;
+        ebchatClient;
       });
     }
     return;
@@ -131,11 +155,11 @@ class _EbChatScreenState extends State<EbChatScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xff214496),
       ),
-      body: client != null
+      body: ebchatClient != null
           ? EBChatWidget(
               key: const Key("johnnyTEST"),
               ebchatToken: ebchatKey,
-              client: client!,
+              client: ebchatClient!,
               currentUser: currentUser!,
               azureMapsApiKey: azureMapsApiKey,
             )
@@ -155,7 +179,23 @@ class _EbChatScreenState extends State<EbChatScreen> {
     if (event.message == null) return;
     //TODO: add your logic to handle notifications
   }
+
+  @override
+  void dispose() {
+    EBChatService.disposeEbchatClient();
+    super.dispose();
+  }
 }
+
 ```
+## IMPORTANT NOTES
+1) If you have initialized "ebchatClient", you can call the method "EBChatService.getWebsocketClient(ebchatKey);" anywhere in your code to call the ebchatClient.
+2) Don't forget to dispose "ebchatClient" when you disconnect.
 
-
+```dart
+ @override
+  void dispose() {
+    EBChatService.disposeEbchatClient();
+    super.dispose();
+  }
+```
