@@ -12,7 +12,7 @@ Flutter chat screen for EBChat Andorid and IOS projects.
 
 ## MAJOR UPDATES
 
-New major version update: 1.0.0+1
+New major version update: 1.0.1+1
 
 ## Usage
 
