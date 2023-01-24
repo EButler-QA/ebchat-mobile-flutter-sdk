@@ -10,6 +10,10 @@ Flutter chat screen for EBChat Andorid and IOS projects.
 - Uses iOS SDK Version `13.0.0`.
 - The minimum iOS target version required is 13.
 
+## MAJOR UPDATES
+
+New major version update: 1.0.0+1
+
 ## Usage
 
 Import `package:ebchat/ebchat.dart` and use the methods in `EBChatService` class.

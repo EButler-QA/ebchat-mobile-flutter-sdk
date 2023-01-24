@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'ebchat_screen.dart';
 
 void main() async {
-  String ebchatKey =
-      "ASgcRTmEWR7iMCVDO62iMFQFD+E1QieRIFdz5Piia8LDZw45Mg0rEZQPKeZKmE6Vl7eezfjYhATd0gnGoeo4c7E2Wbw1SmFGJWdlCnFkQF/ilQfXA2l4lXvtjK329NSvJoPPPLHwIva/wW27mARlSgb+rpFHjclLu3uk5gGxGFk=";
+  String ebchatKey = "EBCHATKEY";
   StreamChatClient? ebchatClient =
       await EBChatService.getWebsocketClient(ebchatKey);
   runApp(MyApp(ebchatClient: ebchatClient));
