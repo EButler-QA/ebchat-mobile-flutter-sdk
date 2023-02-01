@@ -160,21 +160,38 @@ class EbChatScreen extends StatefulWidget {
 class _EbChatScreenState extends State<EbChatScreen> {
   User? currentUser;
   String azureMapsApiKey = "AZUREMAPSKEY";
+  //VAR FOR NOTIFICATIONS
+  bool isFlutterLocalNotificationsInitialized = false;
+  var flutterLocalNotificationsPlugin;
 
   @override
   void initState() {
     initilizeClient();
-    currentUser = User(id: "johnnyTEST", name: "john", extraData: {
-      //TODO: THIS FIELD IS REQUIRED
-      "email": "john@john.com",
-      //TODO: you can store your user extrats attribute
-      "phone": "3933557",
-    });
+
+    ///IF YOU ARE USING FIREBASE TO HANDLE NOTIFICATION
+    ///
+    ///initializeFirebaseNotification();
+    ///
     super.initState();
   }
 
   Future<void> initilizeClient() async {
-    widget.ebchatClient!
+    //TODO: THIS is an example how to access the stream and the client anywhere in the code
+    StreamChatCoreState ebchatStream = StreamChatCore.of(context);
+    currentUser = User(id: "johnnyTEST", name: "john", extraData: const {
+      //TODO: THIS FIELD IS REQUIRED
+      "email": "john@john.com",
+      //TODO: you can store your user extrat attribute
+      "phone": "+9743333333",
+    });
+    String getStreamToken = await ChatSerivice.getStreamUserToken(
+        currentUser!.id, widget.currentEbchatKey);
+
+    await ebchatStream.client.connectUser(
+      User(id: currentUser!.id),
+      getStreamToken,
+    );
+    ebchatStream.client
         .on(
       EventType.messageNew,
       EventType.notificationMessageNew,
@@ -193,9 +210,9 @@ class _EbChatScreenState extends State<EbChatScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xff214496),
       ),
-      body: widget.ebchatClient != null
+      body: widget.ebchatClient != null && currentUser != null
           ? EBChatWidget(
-              key: const Key("johnnyTEST"),
+              key: Key(currentUser!.id),
               ebchatToken: widget.currentEbchatKey,
               client: widget.ebchatClient!,
               currentUser: currentUser!,
@@ -207,6 +224,8 @@ class _EbChatScreenState extends State<EbChatScreen> {
     );
   }
 
+  //HANDLE NOTIFICATION
+
   void showNotifcation(Event event, BuildContext context) {
     if (![
       EventType.messageNew,
@@ -216,12 +235,6 @@ class _EbChatScreenState extends State<EbChatScreen> {
     }
     if (event.message == null) return;
     //TODO: add your logic to handle notifications
-  }
-
-  @override
-  void dispose() {
-    EBChatService.disposeEbchatClient();
-    super.dispose();
   }
 }
 
