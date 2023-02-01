@@ -24,8 +24,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   //CLIENT
-  String initalEbchatKey =
-      "Wjmn+fr/NU1NKz3jU6h/lv3ib8hlDmKou2GM2qRHlYQepFq4rzK9fTPdp1OSd8XKWe4LSFpJCfYCLcLQy1LWurKYd3V9bZRWJ0Nby/uyF+HgOPjbY2N2L07wfckTYsHV3xkuMQxJ3tE8QAYp3SmE2OhH/zuj8bwtLOanXSd/XJk=";
+  String initalEbchatKey = "EBCHATKEY";
   StreamChatClient? ebchatClient;
   @override
   void didChangeDependencies() async {
