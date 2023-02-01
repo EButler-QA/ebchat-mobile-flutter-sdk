@@ -212,11 +212,11 @@ class _ChatPageUserState extends State<ChatPageUser> {
         _channel.state!.messages.add(response.message);
         if (!_channel.extraData.containsKey("initiated")) {
           _channel.updatePartial(set: {"initiated": true});
-          chatSerivice.afterMidnight(
+          /*  chatSerivice.afterMidnight(
               _channel.id!,
               Provider.of<CompanyProvider>(context, listen: false)
                   .company!
-                  .ebchatkey!);
+                  .ebchatkey!);*/
         }
       } catch (e) {
         print(e);
@@ -979,7 +979,7 @@ class _ChatPageUserState extends State<ChatPageUser> {
                         Provider.of<EBchatProvider>(context, listen: false)
                             .globalChannel!
                             .updatePartial(set: {"initiated": true});
-                        Provider.of<EBchatProvider>(context, listen: false)
+                        /* Provider.of<EBchatProvider>(context, listen: false)
                             .afterMidnight(
                                 Provider.of<EBchatProvider>(context,
                                         listen: false)
@@ -988,7 +988,7 @@ class _ChatPageUserState extends State<ChatPageUser> {
                                 Provider.of<CompanyProvider>(context,
                                         listen: false)
                                     .company!
-                                    .ebchatkey!);
+                                    .ebchatkey!);*/
                       }
                       Future.delayed(const Duration(milliseconds: 5), () {
                         if (!myFocusNode.hasFocus) {

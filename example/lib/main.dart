@@ -2,16 +2,49 @@ import 'package:ebchat/ebchat.dart';
 import 'package:flutter/material.dart';
 import 'ebchat_screen.dart';
 
-void main() async {
-  String ebchatKey = "EBCHATKEY";
-  StreamChatClient? ebchatClient =
-      await EBChatService.getWebsocketClient(ebchatKey);
-  runApp(MyApp(ebchatClient: ebchatClient));
+void main() {
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({Key? key, required this.ebchatClient}) : super(key: key);
+  const MyApp({
+    Key? key,
+  }) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return MyHomePage();
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  //CLIENT
+  String initalEbchatKey =
+      "Wjmn+fr/NU1NKz3jU6h/lv3ib8hlDmKou2GM2qRHlYQepFq4rzK9fTPdp1OSd8XKWe4LSFpJCfYCLcLQy1LWurKYd3V9bZRWJ0Nby/uyF+HgOPjbY2N2L07wfckTYsHV3xkuMQxJ3tE8QAYp3SmE2OhH/zuj8bwtLOanXSd/XJk=";
   StreamChatClient? ebchatClient;
+  @override
+  void didChangeDependencies() async {
+    connectEBchatClient(initalEbchatKey);
+    super.didChangeDependencies();
+  }
+
+  Future<void> connectEBchatClient(
+    String? ebchatKey,
+  ) async {
+    if (ebchatClient != null) {
+      EBChatService.disposeEbchatClient();
+    }
+    ebchatClient = await EBChatService.getWebsocketClient(ebchatKey!);
+    setState(() {
+      ebchatClient;
+    });
+    return;
+  }
 
   // This widget is the root of your application.
   @override
@@ -49,12 +82,16 @@ class MyApp extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: ElevatedButton(
-                  onPressed: () async {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => EbChatScreen()));
-                  },
+                  onPressed: () => connectEBchatClient(initalEbchatKey).then(
+                    (value) => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EbChatScreen(
+                            ebchatClient: ebchatClient,
+                            currentEbchatKey: initalEbchatKey),
+                      ),
+                    ),
+                  ),
                   child: SizedBox(
                     height: 50,
                     child: Row(
@@ -64,7 +101,7 @@ class MyApp extends StatelessWidget {
                         SizedBox(
                           width: 7,
                         ),
-                        Text("Open Chat",
+                        Text("EBCHAT WIDGET",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w500,
@@ -73,7 +110,7 @@ class MyApp extends StatelessWidget {
                     ),
                   ),
                 ),
-              )
+              ),
             ]);
       }),
     );

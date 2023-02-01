@@ -9,6 +9,7 @@ class EBChatService {
 
   static void disposeEbchatClient() {
     if (client != null) {
+      Config.currentCompany = null;
       client!.dispose();
       client = null;
     }
@@ -25,6 +26,8 @@ class EBChatService {
       );
       Config.currentCompany = Company.fromMap(json.decode(response.body));
     }
+    if (Config.currentCompany == null ||
+        Config.currentCompany!.streamkey == null) return null;
     client = StreamChatClient(Config.currentCompany!.streamkey!);
     return client;
   }

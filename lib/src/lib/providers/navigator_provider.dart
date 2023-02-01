@@ -1,3 +1,4 @@
+import 'package:ebchat/src/lib/config/config.dart';
 import 'package:ebchat/src/lib/providers/company_provider.dart';
 import 'package:ebchat/src/lib/services/chat_services.dart';
 import 'package:flutter/material.dart';
@@ -30,12 +31,16 @@ class EBchatProvider with ChangeNotifier {
     BuildContext context,
   ) async {
     final client = StreamChatCore.of(context).client;
+    final CompanyProvider companyProvider =
+        Provider.of<CompanyProvider>(context, listen: false);
+    final streamChatCore = StreamChatCore.of(context);
     List<Channel> channels = await client
         .queryChannels(
           filter: Filter.and(
             [
               Filter.equal('type', 'messaging'),
               Filter.equal('frozen', false),
+              Filter.equal('companyID', Config.currentCompany!.id!),
               Filter.in_("members", [
                 StreamChatCore.of(context).currentUser!.id,
               ])
@@ -45,18 +50,16 @@ class EBchatProvider with ChangeNotifier {
         .first;
     if (channels.isEmpty) {
       await chatSerivice.createChannelWithAlfred(
-          StreamChatCore.of(context).currentUser!.id,
-          Provider.of<CompanyProvider>(context, listen: false)
-              .company!
-              .ebchatkey!);
+          streamChatCore.currentUser!.id, companyProvider.company!.ebchatkey!);
       channels = await client
           .queryChannels(
             filter: Filter.and(
               [
                 Filter.equal('type', 'messaging'),
                 Filter.equal('frozen', false),
+                Filter.equal('companyID', Config.currentCompany!.id!),
                 Filter.in_("members", [
-                  StreamChatCore.of(context).currentUser!.id,
+                  streamChatCore.currentUser!.id,
                 ])
               ],
             ),
@@ -77,7 +80,14 @@ class EBchatProvider with ChangeNotifier {
   }
 
   Future<String> getStreamUserToken(String userID, String ebchatkey) async {
-    String token = await chatSerivice.getStreamUserToken(userID, ebchatkey);
+    String token = await ChatSerivice.getStreamUserToken(userID, ebchatkey);
     return token;
+  }
+
+  Future<void> logout() async {
+    if (globalChannel != null) {
+      globalChannel!.dispose();
+      setChannel(null, false);
+    }
   }
 }

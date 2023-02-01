@@ -1,7 +1,8 @@
 
 # ebchat-mobile-flutter-sdk
 
-![Pub](https://img.shields.io/badge/pub-v1.0.0+1-informational)
+![Pub](https://img.shields.io/badge/pub-v1.1.0+1-informational)
+![Pub](https://img.shields.io/static/v1?label=EBchat-SDK&message=internal&color=red)
 
 Flutter chat screen for EBChat Andorid and IOS projects.
 
@@ -12,7 +13,8 @@ Flutter chat screen for EBChat Andorid and IOS projects.
 
 ## MAJOR UPDATES
 
-New major version update: 1.0.1+1
+THIS IS AN INTERNAL PACKAGE FOR EBUTLER DEV TEAM:
+-THIS PACKAGE CONTAINS MULTIPLE CLIENTS AND MULTIPLE CHANNELS
 
 ## Usage
 
@@ -26,16 +28,50 @@ import 'package:ebchat/ebchat.dart';
 import 'package:flutter/material.dart';
 import 'ebchat_screen.dart';
 
-void main() async {
-  String ebchatKey =
-      "EBCHATKEY";
-  StreamChatClient? ebchatClient= await EBChatService.getWebsocketClient(ebchatKey);
-  runApp(MyApp(ebchatClient: ebchatClient));
+void main() {
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({Key? key, required this.ebchatClient}) : super(key: key);
+  const MyApp({
+    Key? key,
+  }) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return MyHomePage();
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  //CLIENT
+  String initalEbchatKey =
+      "Wjmn+fr/NU1NKz3jU6h/lv3ib8hlDmKou2GM2qRHlYQepFq4rzK9fTPdp1OSd8XKWe4LSFpJCfYCLcLQy1LWurKYd3V9bZRWJ0Nby/uyF+HgOPjbY2N2L07wfckTYsHV3xkuMQxJ3tE8QAYp3SmE2OhH/zuj8bwtLOanXSd/XJk=";
   StreamChatClient? ebchatClient;
+
+  Future<void> connectEBchatClient(
+    String? ebchatKey,
+  ) async {
+    if (ebchatClient != null) {
+      EBChatService.disposeEbchatClient();
+    }
+    ebchatClient = await EBChatService.getWebsocketClient(ebchatKey!);
+    setState(() {
+      ebchatClient;
+    });
+    return;
+  }
+
+  @override
+  void didChangeDependencies() async {
+    connectEBchatClient(initalEbchatKey);
+    super.didChangeDependencies();
+  }
 
   // This widget is the root of your application.
   @override
@@ -74,10 +110,14 @@ class MyApp extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: ElevatedButton(
                   onPressed: () async {
+                    String ebchatKey1 = initalEbchatKey;
+                    await connectEBchatClient(ebchatKey1);
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => EbChatScreen()));
+                            builder: (context) => EbChatScreen(
+                                ebchatClient: ebchatClient,
+                                currentEbchatKey: ebchatKey1)));
                   },
                   child: SizedBox(
                     height: 50,
@@ -88,7 +128,43 @@ class MyApp extends StatelessWidget {
                         SizedBox(
                           width: 7,
                         ),
-                        Text("Open Chat",
+                        Text("ABRAJ BAY RECEPTION ",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 13))
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: ElevatedButton(
+                  onPressed: () async {
+                    String ebchatKey2 =
+                        "WZPQkSPP37RhgdNcvKPd3Z65YQh90QQkMcyyRlaatrfy9P8UN0lXupX96cwt/N3jDrq/ghOQz7wUjhjE39WxRO0gbeJuKC6XjFHgGXLMbfQPtNeYvlYcj6wC7IEWfTr4SmIGTqBIESF7vkuB7QAs21DVpXM1BhlvYkmYagtXoVs=";
+                    await connectEBchatClient(ebchatKey2);
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => EbChatScreen(
+                                ebchatClient: ebchatClient,
+                                currentEbchatKey: ebchatKey2)));
+                  },
+                  child: SizedBox(
+                    height: 50,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.chat),
+                        SizedBox(
+                          width: 7,
+                        ),
+                        Text("ABRAJ BAY SPA",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w500,
@@ -111,17 +187,19 @@ import 'package:ebchat/ebchat.dart';
 import 'package:flutter/material.dart';
 
 class EbChatScreen extends StatefulWidget {
-  const EbChatScreen({Key? key}) : super(key: key);
+  EbChatScreen(
+      {Key? key, required this.ebchatClient, required this.currentEbchatKey})
+      : super(key: key);
+  StreamChatClient? ebchatClient;
+  String currentEbchatKey;
   @override
   State<EbChatScreen> createState() => _EbChatScreenState();
 }
 
 class _EbChatScreenState extends State<EbChatScreen> {
-  StreamChatClient? ebchatClient;
   User? currentUser;
-  String ebchatKey = "EBCHATKEY";
-
   String azureMapsApiKey = "AZUREMAPSKEY";
+
   @override
   void initState() {
     initilizeClient();
@@ -135,8 +213,7 @@ class _EbChatScreenState extends State<EbChatScreen> {
   }
 
   Future<void> initilizeClient() async {
-    ebchatClient = await EBChatService.getWebsocketClient(ebchatKey);
-    ebchatClient!
+    widget.ebchatClient!
         .on(
       EventType.messageNew,
       EventType.notificationMessageNew,
@@ -144,11 +221,7 @@ class _EbChatScreenState extends State<EbChatScreen> {
         .listen((event) {
       showNotifcation(event, context);
     });
-    if (mounted) {
-      setState(() {
-        ebchatClient;
-      });
-    }
+
     return;
   }
 
@@ -159,11 +232,11 @@ class _EbChatScreenState extends State<EbChatScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xff214496),
       ),
-      body: ebchatClient != null
+      body: widget.ebchatClient != null
           ? EBChatWidget(
               key: const Key("johnnyTEST"),
-              ebchatToken: ebchatKey,
-              client: ebchatClient!,
+              ebchatToken: widget.currentEbchatKey,
+              client: widget.ebchatClient!,
               currentUser: currentUser!,
               azureMapsApiKey: azureMapsApiKey,
             )

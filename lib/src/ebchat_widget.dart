@@ -41,11 +41,14 @@ class _EBChatScreenState extends State<EBChatWidget> {
   final AppTheme appTheme = AppTheme();
   bool moduleInitalized = false;
   Future<void> initPackage(BuildContext mcontext) async {
+    CompanyProvider companyProvider =
+        Provider.of<CompanyProvider>(mcontext, listen: false);
+    EBchatProvider eBchatProvider =
+        Provider.of<EBchatProvider>(mcontext, listen: false);
     Config.setConfig(widget.arabicApp, widget.azureMapsApiKey);
     await loadTextString();
-    Provider.of<CompanyProvider>(mcontext, listen: false).setCompany(mounted);
-    Provider.of<EBchatProvider>(mcontext, listen: false)
-        .setCurrentUser(widget.currentUser, mounted);
+    companyProvider.setCompany(mounted);
+    eBchatProvider.setCurrentUser(widget.currentUser, mounted);
     return;
   }
 
