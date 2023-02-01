@@ -24,97 +24,122 @@ main.dart:
 ```dart
 import 'package:ebchat/ebchat.dart';
 import 'package:flutter/material.dart';
+import 'ebchat_screen.dart';
 
-class EbChatScreen extends StatefulWidget {
-  EbChatScreen(
-      {Key? key, required this.ebchatClient, required this.currentEbchatKey})
-      : super(key: key);
-  StreamChatClient? ebchatClient;
-  String currentEbchatKey;
-  @override
-  State<EbChatScreen> createState() => _EbChatScreenState();
+void main() {
+  runApp(const MyApp());
 }
 
-class _EbChatScreenState extends State<EbChatScreen> {
-  User? currentUser;
-  String azureMapsApiKey = "AZUREMAPSKEY";
-  //VAR FOR NOTIFICATIONS
-  bool isFlutterLocalNotificationsInitialized = false;
-  var flutterLocalNotificationsPlugin;
-
+class MyApp extends StatelessWidget {
+  const MyApp({
+    Key? key,
+  }) : super(key: key);
   @override
-  void initState() {
-    initilizeClient();
+  Widget build(BuildContext context) {
+    return MyHomePage();
+  }
+}
 
-    ///IF YOU ARE USING FIREBASE TO HANDLE NOTIFICATION
-    ///
-    ///initializeFirebaseNotification();
-    ///
-    super.initState();
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  //CLIENT
+  String initalEbchatKey = "EBCHATKEY";
+  StreamChatClient? ebchatClient;
+  @override
+  void didChangeDependencies() async {
+    connectEBchatClient(initalEbchatKey);
+    super.didChangeDependencies();
   }
 
-  Future<void> initilizeClient() async {
-    //TODO: THIS is an example how to access the stream and the client anywhere in the code
-    StreamChatCoreState ebchatStream = StreamChatCore.of(context);
-    currentUser = User(id: "johnnyTEST", name: "john", extraData: const {
-      //TODO: THIS FIELD IS REQUIRED
-      "email": "john@john.com",
-      //TODO: you can store your user extrat attribute
-      "phone": "+9743333333",
+  Future<void> connectEBchatClient(
+    String? ebchatKey,
+  ) async {
+    if (ebchatClient != null) {
+      EBChatService.disposeEbchatClient();
+    }
+    ebchatClient = await EBChatService.getWebsocketClient(ebchatKey!);
+    setState(() {
+      ebchatClient;
     });
-    String getStreamToken = await ChatSerivice.getStreamUserToken(
-        currentUser!.id, widget.currentEbchatKey);
-
-    await ebchatStream.client.connectUser(
-      User(id: currentUser!.id),
-      getStreamToken,
-    );
-    ebchatStream.client
-        .on(
-      EventType.messageNew,
-      EventType.notificationMessageNew,
-    )
-        .listen((event) {
-      showNotifcation(event, context);
-    });
-
     return;
   }
 
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        backgroundColor: const Color(0xff214496),
+    return MaterialApp(
+      title: 'EBCHAT Widget DEMO',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
       ),
-      body: widget.ebchatClient != null && currentUser != null
-          ? EBChatWidget(
-              key: Key(currentUser!.id),
-              ebchatToken: widget.currentEbchatKey,
-              client: widget.ebchatClient!,
-              currentUser: currentUser!,
-              azureMapsApiKey: azureMapsApiKey,
-            )
-          : const Center(
-              child: CircularProgressIndicator(),
-            ),
+      builder: (context, child) {
+        return Scaffold(
+          body: ebchatClient != null
+              ? StreamChat(
+                  client: ebchatClient!,
+                  streamChatThemeData: StreamChatThemeData(
+                    messageListViewTheme: const StreamMessageListViewThemeData(
+                      backgroundColor: Color(0xFFF8F8F8),
+                    ),
+                    channelListViewTheme: const StreamChannelListViewThemeData(
+                      backgroundColor: Color(0xFFF8F8F8),
+                    ),
+                  ),
+                  child: child,
+                )
+              : const Center(
+                  child: Text("Please double check you EBCHATKEY"),
+                ),
+        );
+      },
+      home: Builder(builder: (context) {
+        return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: ElevatedButton(
+                  onPressed: () => connectEBchatClient(initalEbchatKey).then(
+                    (value) => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EbChatScreen(
+                            ebchatClient: ebchatClient,
+                            currentEbchatKey: initalEbchatKey),
+                      ),
+                    ),
+                  ),
+                  child: SizedBox(
+                    height: 50,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.chat),
+                        SizedBox(
+                          width: 7,
+                        ),
+                        Text("EBCHAT WIDGET",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 13))
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ]);
+      }),
     );
   }
-
-  //HANDLE NOTIFICATION
-
-  void showNotifcation(Event event, BuildContext context) {
-    if (![
-      EventType.messageNew,
-      EventType.notificationMessageNew,
-    ].contains(event.type)) {
-      return;
-    }
-    if (event.message == null) return;
-    //TODO: add your logic to handle notifications
-  }
 }
+
 
 ```
 ebchat_screen.dart:
