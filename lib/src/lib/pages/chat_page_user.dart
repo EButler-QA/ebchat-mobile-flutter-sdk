@@ -1,32 +1,31 @@
 import 'dart:async';
 import 'dart:io';
+
+import 'package:ebchat/src/lib/Theme/my_theme.dart';
+import 'package:ebchat/src/lib/config/config.dart' as cf;
 import 'package:ebchat/src/lib/providers/company_provider.dart';
 import 'package:ebchat/src/lib/providers/navigator_provider.dart';
 import 'package:ebchat/src/lib/services/chat_services.dart';
+import 'package:ebchat/src/lib/widgets/audio_loading_message.dart';
+import 'package:ebchat/src/lib/widgets/audio_play_message.dart';
 import 'package:ebchat/src/lib/widgets/dialog/user_info_dialog.dart';
+import 'package:ebchat/src/lib/widgets/getStream/custom_message_input.dart';
+import 'package:ebchat/src/lib/widgets/getStream/custom_message_listview.dart';
+import 'package:ebchat/src/lib/widgets/widgets.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 import 'package:record/record.dart';
 import 'package:sound_mode/sound_mode.dart';
 import 'package:sound_mode/utils/ringer_mode_statuses.dart';
-import 'package:stream_chat_flutter/scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:ebchat/src/lib/Theme/my_theme.dart';
-import 'package:ebchat/src/lib/config/config.dart' as cf;
-import 'package:ebchat/src/lib/widgets/audio_loading_message.dart';
-import 'package:ebchat/src/lib/widgets/audio_play_message.dart';
-import 'package:ebchat/src/lib/widgets/getStream/custom_message_listview.dart';
-import 'package:ebchat/src/lib/widgets/getStream/custom_message_input.dart';
-import 'package:ebchat/src/lib/widgets/widgets.dart';
-import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:stream_chat/src/core/models/action.dart' as ac;
-import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' as fn;
-import 'package:just_audio/just_audio.dart';
+import 'package:stream_chat_flutter/scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
-import 'package:http/http.dart' as http;
 
 class ChatPageUser extends StatefulWidget {
-  ChatPageUser({Key? key}) : super(key: key);
+  const ChatPageUser({Key? key}) : super(key: key);
 
   @override
   State<ChatPageUser> createState() => _ChatPageUserState();
@@ -39,7 +38,7 @@ class _ChatPageUserState extends State<ChatPageUser> {
   Message? quotedMessage;
   bool recordingStarted = false;
   bool emojiShowing = false;
-  late final TextEditingController chatMsgTextController;
+  late final StreamMessageInputController messageInputController;
   late final ItemScrollController scroller;
   bool typing = false;
   User? typingUser;
@@ -70,7 +69,7 @@ class _ChatPageUserState extends State<ChatPageUser> {
         }
       }
     });
-    chatMsgTextController = TextEditingController();
+    messageInputController = StreamMessageInputController();
     scroller = ItemScrollController();
     _audioPlayer = AudioPlayer();
     initApp();
@@ -149,29 +148,29 @@ class _ChatPageUserState extends State<ChatPageUser> {
   }
 
   _onEmojiSelected(Emoji emoji) {
-    chatMsgTextController
+    messageInputController
       ..text += emoji.emoji
       ..selection = TextSelection.fromPosition(
-          TextPosition(offset: chatMsgTextController.text.length));
+          TextPosition(offset: messageInputController.text.length));
   }
 
   _onBackspacePressed() {
-    chatMsgTextController
-      ..text = chatMsgTextController.text.characters.skipLast(1).toString()
+    messageInputController
+      ..text = messageInputController.text.characters.skipLast(1).toString()
       ..selection = TextSelection.fromPosition(
-          TextPosition(offset: chatMsgTextController.text.length));
+          TextPosition(offset: messageInputController.text.length));
   }
 
   void sendVoiceNote(Message initalMessage, [bool confirmed = false]) async {
-    final _client = StreamChatCore.of(context).client;
-    final _channel =
+    final client = StreamChatCore.of(context).client;
+    final channel =
         Provider.of<EBchatProvider>(context, listen: false).globalChannel!;
     // ignore: parameter_assignments
     if (!confirmed) {
       Message message = initalMessage.copyWith(
         //  text: "",
         createdAt: initalMessage.createdAt,
-        user: _client.state.currentUser,
+        user: client.state.currentUser,
         status: MessageSendingStatus.sending,
         attachments: initalMessage.attachments.map(
           (it) {
@@ -189,12 +188,12 @@ class _ChatPageUserState extends State<ChatPageUser> {
           style: "primary",
         )
       ]));
-      _channel.state!.messages.add(message);
+      channel.state!.messages.add(message);
 
       try {
         if (!message.attachments.first.uploadState.isSuccess) {
           final attachmentsUploadCompleter = Completer<Message>();
-          _channel.retryAttachmentUpload(
+          channel.retryAttachmentUpload(
             message.id,
             message.attachments.first.id,
           );
@@ -203,15 +202,15 @@ class _ChatPageUserState extends State<ChatPageUser> {
           message = await attachmentsUploadCompleter.future;
         }
 
-        final response = await _client.sendMessage(
+        final response = await client.sendMessage(
           message,
-          _channel.id!,
-          _channel.type,
+          channel.id!,
+          channel.type,
         );
 
-        _channel.state!.messages.add(response.message);
-        if (!_channel.extraData.containsKey("initiated")) {
-          _channel.updatePartial(set: {"initiated": true});
+        channel.state!.messages.add(response.message);
+        if (!channel.extraData.containsKey("initiated")) {
+          channel.updatePartial(set: {"initiated": true});
           /*  chatSerivice.afterMidnight(
               _channel.id!,
               Provider.of<CompanyProvider>(context, listen: false)
@@ -222,10 +221,10 @@ class _ChatPageUserState extends State<ChatPageUser> {
         print(e);
       }
     } else {
-      _channel.state!.removeMessage(initalMessage);
+      channel.state!.removeMessage(initalMessage);
       initalMessage.attachments
           .removeWhere((element) => element.actions!.isNotEmpty);
-      _channel.sendMessage(Message(
+      channel.sendMessage(Message(
         attachments: initalMessage.attachments,
       ));
     }
@@ -276,7 +275,7 @@ class _ChatPageUserState extends State<ChatPageUser> {
             channel: Provider.of<EBchatProvider>(context, listen: false)
                 .globalChannel!,
             child: Container(
-              color: MessageListViewTheme.of(context).backgroundColor,
+              color: StreamMessageListViewTheme.of(context).backgroundColor,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
@@ -337,14 +336,14 @@ class _ChatPageUserState extends State<ChatPageUser> {
                                             const Spacer(),
                                             ElevatedButton(
                                                 style: ElevatedButton.styleFrom(
-                                                  primary: e.value!
-                                                          .contains(";cancel")
-                                                      ? Colors.white
-                                                      : AppColors.secndaryLight,
-                                                  onPrimary: e.value!
+                                                  foregroundColor: e.value!
                                                           .contains(";cancel")
                                                       ? AppColors.secndaryLight
                                                       : Colors.white,
+                                                  backgroundColor: e.value!
+                                                          .contains(";cancel")
+                                                      ? Colors.white
+                                                      : AppColors.secndaryLight,
                                                   shape: RoundedRectangleBorder(
                                                     side: const BorderSide(
                                                       color: AppColors
@@ -511,7 +510,7 @@ class _ChatPageUserState extends State<ChatPageUser> {
                                                             200,
                                                     child: Padding(
                                                       padding: const EdgeInsets
-                                                              .symmetric(
+                                                          .symmetric(
                                                           vertical: 3.0),
                                                       child: Center(
                                                           child: Text(
@@ -540,16 +539,16 @@ class _ChatPageUserState extends State<ChatPageUser> {
                                               ElevatedButton(
                                                   style:
                                                       ElevatedButton.styleFrom(
-                                                    primary: e.value!
-                                                            .contains(";cancel")
-                                                        ? Colors.white
-                                                        : AppColors
-                                                            .secndaryLight,
-                                                    onPrimary: e.value!
+                                                    foregroundColor: e.value!
                                                             .contains(";cancel")
                                                         ? AppColors
                                                             .secndaryLight
                                                         : Colors.white,
+                                                    backgroundColor: e.value!
+                                                            .contains(";cancel")
+                                                        ? Colors.white
+                                                        : AppColors
+                                                            .secndaryLight,
                                                     shape:
                                                         RoundedRectangleBorder(
                                                       side: const BorderSide(
@@ -609,7 +608,7 @@ class _ChatPageUserState extends State<ChatPageUser> {
                                                       child: Padding(
                                                         padding:
                                                             const EdgeInsets
-                                                                    .symmetric(
+                                                                .symmetric(
                                                                 vertical: 3.0),
                                                         child: Center(
                                                             child: Text(
@@ -667,14 +666,14 @@ class _ChatPageUserState extends State<ChatPageUser> {
                                         .mascotte!
                                         .name!,
                                     maxLines: 1,
-                                    key: Key('username'),
+                                    key: const Key('username'),
                                     overflow: TextOverflow.ellipsis,
                                   );
                                 }
                                 return Text(
                                   message.user?.name ?? '',
                                   maxLines: 1,
-                                  key: Key('username'),
+                                  key: const Key('username'),
                                   overflow: TextOverflow.ellipsis,
                                 );
                               });
@@ -797,14 +796,14 @@ class _ChatPageUserState extends State<ChatPageUser> {
                                       .mascotte!
                                       .name!,
                                   maxLines: 1,
-                                  key: Key('username'),
+                                  key: const Key('username'),
                                   overflow: TextOverflow.ellipsis,
                                 );
                               }
                               return Text(
                                 message.user?.name ?? '',
                                 maxLines: 1,
-                                key: Key('username'),
+                                key: const Key('username'),
                                 overflow: TextOverflow.ellipsis,
                               );
                             });
@@ -963,13 +962,13 @@ class _ChatPageUserState extends State<ChatPageUser> {
                         ),
                       ],
                     ),
-                  CustomMessageInput(
+                  StreamCustomMessageInput(
                     showCommandsButton: false,
-                    textEditingController: chatMsgTextController,
+                    messageInputController: messageInputController,
                     autofocus: true,
                     disable: !showMessageInput,
                     disableAttachments: !showMessageInput,
-                    quotedMessage: quotedMessage,
+                    // quotedMessage: quotedMessage,
                     focusNode: myFocusNode,
                     onMessageSent: (_) async {
                       if (!Provider.of<EBchatProvider>(context, listen: false)
@@ -1060,7 +1059,7 @@ class _ChatPageUserState extends State<ChatPageUser> {
                               iconColor: Colors.grey,
                               iconColorSelected: Colors.blue,
                               backspaceColor: Colors.blue,
-                              showRecentsTab: true,
+                              // showRecentsTab: true,
                               recentsLimit: 28,
                             ))),
                   ),

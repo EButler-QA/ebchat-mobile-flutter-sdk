@@ -3,9 +3,14 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  connectivity_plus_windows
+  connectivity_plus
+  dart_vlc
+  desktop_drop
   emoji_picker_flutter
+  file_selector_windows
   record_windows
+  share_plus
+  thumblr_windows
   url_launcher_windows
 )
 
