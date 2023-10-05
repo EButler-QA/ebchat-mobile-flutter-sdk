@@ -2,11 +2,11 @@ import 'package:ebchat/ebchat.dart';
 import 'package:flutter/material.dart';
 
 class EbChatScreen extends StatefulWidget {
-  EbChatScreen(
+  const EbChatScreen(
       {Key? key, required this.ebchatClient, required this.currentEbchatKey})
       : super(key: key);
-  StreamChatClient? ebchatClient;
-  String currentEbchatKey;
+  final StreamChatClient? ebchatClient;
+  final String currentEbchatKey;
   @override
   State<EbChatScreen> createState() => _EbChatScreenState();
 }

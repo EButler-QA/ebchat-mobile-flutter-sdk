@@ -87,8 +87,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => EbChatScreen(
-                            ebchatClient: ebchatClient,
-                            currentEbchatKey: initalEbchatKey),
+                          ebchatClient: ebchatClient,
+                          currentEbchatKey: initalEbchatKey,
+                        ),
                       ),
                     ),
                   ),
