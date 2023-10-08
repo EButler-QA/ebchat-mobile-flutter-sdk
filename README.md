@@ -1,7 +1,7 @@
 
 # ebchat-mobile-flutter-sdk
 
-![Pub](https://img.shields.io/badge/pub-v2.0.0+1-informational)
+![Pub](https://img.shields.io/badge/pub-v3.0.0+1-informational)
 
 Flutter chat screen for EBChat Andorid and IOS projects.
 
