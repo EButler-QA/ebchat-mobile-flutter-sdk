@@ -3,21 +3,12 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:ebchat/src/lib/Theme/my_theme.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:jiffy/jiffy.dart';
-import 'package:stream_chat_flutter/scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:stream_chat_flutter/src/extension.dart';
-import 'package:stream_chat_flutter/src/info_tile.dart';
-import 'package:stream_chat_flutter/src/message_widget.dart';
-import 'package:stream_chat_flutter/src/stream_svg_icon.dart';
-import 'package:stream_chat_flutter/src/swipeable.dart';
-import 'package:stream_chat_flutter/src/system_message.dart';
-import 'package:stream_chat_flutter/src/theme/themes.dart';
-import 'package:stream_chat_flutter/stream_chat_flutter.dart';
-import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 import 'package:ebchat/src/lib/widgets/getStream/custom_message_widget.dart'
     as cmw;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:stream_chat_flutter/scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
 /// Widget builder for message
 /// [defaultMessageWidget] is the default [CustomMessageWidget] configuration
@@ -346,7 +337,7 @@ class CustomMessageListView extends StatefulWidget {
   final SpacingWidgetBuilder? spacingWidgetBuilder;
 
   @override
-  _MessageListViewState createState() => _MessageListViewState();
+  State<CustomMessageListView> createState() => _MessageListViewState();
 }
 
 class _MessageListViewState extends State<CustomMessageListView> {
@@ -363,10 +354,12 @@ class _MessageListViewState extends State<CustomMessageListView> {
     if (initialScrollIndex != null) return initialScrollIndex;
     if (streamChannel!.initialMessageId != null) {
       final messages = streamChannel!.channel.state!.messages
-          .where(widget.messageFilter ??
-              defaultMessageFilter(
-                streamChannel!.channel.client.state.currentUser!.id,
-              ))
+          .where(
+            widget.messageFilter ??
+                defaultMessageFilter(
+                  streamChannel!.channel.client.state.currentUser!.id,
+                ),
+          )
           .toList(growable: false);
       final totalMessages = messages.length;
       final messageIndex =
@@ -478,7 +471,7 @@ class _MessageListViewState extends State<CustomMessageListView> {
     final child = Stack(
       alignment: Alignment.center,
       children: [
-        ConnectionStatusBuilder(
+        StreamConnectionStatusBuilder(
           statusBuilder: (context, status) {
             var statusString = '';
             var showStatus = true;
@@ -495,7 +488,7 @@ class _MessageListViewState extends State<CustomMessageListView> {
                 break;
             }
 
-            return InfoTile(
+            return StreamInfoTile(
               showMessage: widget.showConnectionStateTile && showStatus,
               tileAnchor: Alignment.topCenter,
               childAnchor: Alignment.topCenter,
@@ -543,6 +536,7 @@ class _MessageListViewState extends State<CustomMessageListView> {
                         return ((index + 2) * 2) - 1;
                       }
                     }
+                    return null;
                   },
 
                   // Item Count -> 8 (1 parent, 2 header+footer, 2 top+bottom, 3 messages)
@@ -598,26 +592,28 @@ class _MessageListViewState extends State<CustomMessageListView> {
                       message = messages[i - 2];
                       nextMessage = messages[i - 1];
                     }
-                    if (!Jiffy(message.createdAt.toLocal()).isSame(
-                      nextMessage.createdAt.toLocal(),
-                      Units.DAY,
-                    )) {
+                    if (!Jiffy.parseFromDateTime(message.createdAt.toLocal())
+                        .isSame(
+                            Jiffy.parseFromDateTime(
+                                nextMessage.createdAt.toLocal()),
+                            unit: Unit.day)) {
                       final divider = widget.dateDividerBuilder != null
                           ? widget.dateDividerBuilder!(
                               nextMessage.createdAt.toLocal(),
                             )
                           : Padding(
                               padding: const EdgeInsets.symmetric(vertical: 12),
-                              child: DateDivider(
+                              child: StreamDateDivider(
                                 dateTime: nextMessage.createdAt.toLocal(),
                               ),
                             );
                       return divider;
                     }
                     final timeDiff =
-                        Jiffy(nextMessage.createdAt.toLocal()).diff(
-                      message.createdAt.toLocal(),
-                      Units.MINUTE,
+                        Jiffy.parseFromDateTime(nextMessage.createdAt.toLocal())
+                            .diff(
+                      Jiffy.parseFromDateTime(message.createdAt.toLocal()),
+                      unit: Unit.minute,
                     );
 
                     final spacingRules = <SpacingType>[];
@@ -745,8 +741,10 @@ class _MessageListViewState extends State<CustomMessageListView> {
       ],
     );
 
-    final backgroundColor = MessageListViewTheme.of(context).backgroundColor;
-    final backgroundImage = MessageListViewTheme.of(context).backgroundImage;
+    final backgroundColor =
+        StreamMessageListViewTheme.of(context).backgroundColor;
+    final backgroundImage =
+        StreamMessageListViewTheme.of(context).backgroundImage;
 
     if (backgroundColor != null || backgroundImage != null) {
       return Container(
@@ -776,7 +774,7 @@ class _MessageListViewState extends State<CustomMessageListView> {
         child: Text(
           context.translations.threadSeparatorText(replyCount),
           textAlign: TextAlign.center,
-          style: ChannelHeaderTheme.of(context).subtitleStyle,
+          style: StreamChannelHeaderTheme.of(context).subtitleStyle,
         ),
       ),
     );
@@ -830,7 +828,7 @@ class _MessageListViewState extends State<CustomMessageListView> {
             final message = messages[index - 2];
             return widget.dateDividerBuilder != null
                 ? widget.dateDividerBuilder!(message.createdAt.toLocal())
-                : DateDivider(dateTime: message.createdAt.toLocal());
+                : StreamDateDivider(dateTime: message.createdAt.toLocal());
           },
         ),
       );
@@ -845,8 +843,10 @@ class _MessageListViewState extends State<CustomMessageListView> {
     final inView = values.where((position) => position.itemLeadingEdge < 1);
     if (inView.isEmpty) return null;
     return inView
-        .reduce((max, position) =>
-            position.itemLeadingEdge > max.itemLeadingEdge ? position : max)
+        .reduce(
+          (max, position) =>
+              position.itemLeadingEdge > max.itemLeadingEdge ? position : max,
+        )
         .index;
   }
 
@@ -854,8 +854,10 @@ class _MessageListViewState extends State<CustomMessageListView> {
     final inView = values.where((position) => position.itemLeadingEdge < 1);
     if (inView.isEmpty) return null;
     return inView
-        .reduce((min, position) =>
-            position.itemLeadingEdge < min.itemLeadingEdge ? position : min)
+        .reduce(
+          (min, position) =>
+              position.itemLeadingEdge < min.itemLeadingEdge ? position : min,
+        )
         .index;
   }
 
@@ -869,9 +871,11 @@ class _MessageListViewState extends State<CustomMessageListView> {
           }
           final unreadCount = snapshot.data!;
           final showUnreadCount = unreadCount > 0 &&
-              streamChannel!.channel.state!.members.any((e) =>
-                  e.userId ==
-                  streamChannel!.channel.client.state.currentUser!.id);
+              streamChannel!.channel.state!.members.any(
+                (e) =>
+                    e.userId ==
+                    streamChannel!.channel.client.state.currentUser!.id,
+              );
           return Positioned(
             bottom: 8,
             right: 8,
@@ -1018,7 +1022,7 @@ class _MessageListViewState extends State<CustomMessageListView> {
         FocusScope.of(context).unfocus();
       },
       showPinButton: currentUserMember != null &&
-          widget.pinPermissions.contains(currentUserMember.role),
+          widget.pinPermissions.contains(currentUserMember.channelRole),
     );
 
     if (widget.parentMessageBuilder != null) {
@@ -1036,7 +1040,7 @@ class _MessageListViewState extends State<CustomMessageListView> {
     if ((message.type == 'system' || message.type == 'error') &&
         message.text?.isNotEmpty == true) {
       return widget.systemMessageBuilder?.call(context, message) ??
-          SystemMessage(
+          StreamSystemMessage(
             message: message,
             onMessageTap: (message) {
               if (widget.onSystemMessageTap != null) {
@@ -1055,9 +1059,9 @@ class _MessageListViewState extends State<CustomMessageListView> {
 
     num timeDiff = 0;
     if (nextMessage != null) {
-      timeDiff = Jiffy(nextMessage.createdAt.toLocal()).diff(
-        message.createdAt.toLocal(),
-        Units.MINUTE,
+      timeDiff = Jiffy.parseFromDateTime(nextMessage.createdAt.toLocal()).diff(
+        Jiffy.parseFromDateTime(message.createdAt.toLocal()),
+        unit: Unit.minute,
       );
     }
 
@@ -1107,16 +1111,20 @@ class _MessageListViewState extends State<CustomMessageListView> {
     final currentUserMember =
         members.firstWhereOrNull((e) => e.user!.id == currentUser!.id);
     final channel = StreamChannel.of(context).channel;
-    dynamic readList = channel.state?.read.where((it) =>
-        it.user.id != currentUser?.id &&
-        (it.lastRead.isAfter(message.createdAt) ||
-            it.lastRead.isAtSameMomentAs(message.createdAt)));
-    dynamic isMessageRead = readList!.isNotEmpty;
-    channel.state?.readStream.first.then((value) {
-      readList = value.where((it) =>
+    dynamic readList = channel.state?.read.where(
+      (it) =>
           it.user.id != currentUser?.id &&
           (it.lastRead.isAfter(message.createdAt) ||
-              it.lastRead.isAtSameMomentAs(message.createdAt)));
+              it.lastRead.isAtSameMomentAs(message.createdAt)),
+    );
+    dynamic isMessageRead = readList!.isNotEmpty;
+    channel.state?.readStream.first.then((value) {
+      readList = value.where(
+        (it) =>
+            it.user.id != currentUser?.id &&
+            (it.lastRead.isAfter(message.createdAt) ||
+                it.lastRead.isAtSameMomentAs(message.createdAt)),
+      );
       if (readList!.isNotEmpty) {
         setState(() {
           isMessageRead = readList!.isNotEmpty;
@@ -1223,7 +1231,7 @@ class _MessageListViewState extends State<CustomMessageListView> {
         FocusScope.of(context).unfocus();
       },
       showPinButton: currentUserMember != null &&
-          widget.pinPermissions.contains(currentUserMember.role),
+          widget.pinPermissions.contains(currentUserMember.channelRole),
     );
 
     if (widget.messageBuilder != null) {
@@ -1249,13 +1257,14 @@ class _MessageListViewState extends State<CustomMessageListView> {
         decoration: const BoxDecoration(),
         clipBehavior: Clip.hardEdge,
         child: Swipeable(
-          onSwipeEnd: () {
+          onSwiped: (direction) => () {
             FocusScope.of(context).unfocus();
             widget.onMessageSwiped?.call(message);
           },
-          backgroundIcon: StreamSvgIcon.reply(
+          backgroundBuilder: (context, details) => StreamSvgIcon.reply(
             color: _streamTheme.colorTheme.accentPrimary,
           ),
+          key: null,
           child: child,
         ),
       );
@@ -1432,10 +1441,10 @@ class _LoadingIndicator extends StatelessWidget {
 
 Stream<T> _valueListenableToStreamAdapter<T>(ValueListenable<T> listenable) {
   // ignore: close_sinks
-  late StreamController<T> _controller;
+  late StreamController<T> controller;
 
   void listener() {
-    _controller.add(listenable.value);
+    controller.add(listenable.value);
   }
 
   void start() {
@@ -1446,12 +1455,12 @@ Stream<T> _valueListenableToStreamAdapter<T>(ValueListenable<T> listenable) {
     listenable.removeListener(listener);
   }
 
-  _controller = StreamController<T>(
+  controller = StreamController<T>(
     onListen: start,
     onPause: end,
     onResume: start,
     onCancel: end,
   );
 
-  return _controller.stream;
+  return controller.stream;
 }

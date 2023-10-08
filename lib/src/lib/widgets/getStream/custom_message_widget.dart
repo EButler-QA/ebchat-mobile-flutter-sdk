@@ -1,13 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_portal/flutter_portal.dart';
-import 'package:stream_chat_flutter/src/attachment/url_attachment.dart';
-import 'package:stream_chat_flutter/src/extension.dart';
-import 'package:stream_chat_flutter/src/image_group.dart';
-import 'package:stream_chat_flutter/src/message_actions_modal.dart';
-import 'package:stream_chat_flutter/src/message_reactions_modal.dart';
-import 'package:stream_chat_flutter/src/quoted_message_widget.dart';
-import 'package:stream_chat_flutter/src/reaction_bubble.dart';
+import 'package:stream_chat_flutter/src/message_actions_modal/message_actions_modal.dart';
+import 'package:stream_chat_flutter/src/message_input/quoted_message_widget.dart';
+import 'package:stream_chat_flutter/src/message_widget/reactions/message_reactions_modal.dart';
+import 'package:stream_chat_flutter/src/message_widget/reactions/reaction_bubble.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
 /// Widget builder for building attachments
@@ -105,49 +104,48 @@ class CustomMessageWidget extends StatefulWidget {
             if (attachments.length > 1) {
               return Padding(
                 padding: attachmentPadding,
-                child: wrapAttachmentWidget(
-                  context,
-                  Material(
+                child: WrapAttachmentWidget(
+                  attachmentWidget: Material(
                     color: messageTheme.messageBackgroundColor,
-                    child: ImageGroup(
-                      size: Size(
-                        mediaQueryData.size.width * 0.8,
-                        mediaQueryData.size.height * 0.3,
+                    child: StreamImageGroup(
+                      constraints: BoxConstraints(
+                        maxWidth: 400,
+                        minWidth: 400,
+                        maxHeight: mediaQueryData.size.height * 0.3,
                       ),
                       images: attachments,
                       message: message,
                       messageTheme: messageTheme,
                       onShowMessage: onShowMessage,
-                      onReturnAction: onReturnAction,
+                      // onReturnAction: onReturnAction,
                       onAttachmentTap: onAttachmentTap,
                     ),
                   ),
-                  border,
-                  reverse,
+                  attachmentShape: border,
                 ),
               );
             }
 
-            return wrapAttachmentWidget(
-              context,
-              ImageAttachment(
+            return WrapAttachmentWidget(
+              attachmentWidget: StreamImageAttachment(
                 attachment: attachments[0],
                 message: message,
                 messageTheme: messageTheme,
-                size: Size(
-                  mediaQueryData.size.width * 0.8,
-                  mediaQueryData.size.height * 0.3,
+                constraints: BoxConstraints.loose(
+                  Size(
+                    mediaQueryData.size.width * 0.8,
+                    mediaQueryData.size.height * 0.3,
+                  ),
                 ),
                 onShowMessage: onShowMessage,
-                onReturnAction: onReturnAction,
+                // onReturnAction: onReturnAction,
                 onAttachmentTap: onAttachmentTap != null
                     ? () {
                         onAttachmentTap.call(message, attachments[0]);
                       }
                     : null,
               ),
-              border,
-              reverse,
+              attachmentShape: border,
             );
           },
           'video': (context, message, attachments) {
@@ -155,21 +153,21 @@ class CustomMessageWidget extends StatefulWidget {
               borderRadius: attachmentBorderRadiusGeometry ?? BorderRadius.zero,
             );
 
-            return wrapAttachmentWidget(
-              context,
-              Column(
+            return WrapAttachmentWidget(
+              attachmentWidget: Column(
                 children: attachments.map((attachment) {
                   final mediaQueryData = MediaQuery.of(context);
-                  return VideoAttachment(
+                  return StreamVideoAttachment(
                     attachment: attachment,
                     messageTheme: messageTheme,
-                    size: Size(
-                      mediaQueryData.size.width * 0.8,
-                      mediaQueryData.size.height * 0.3,
+                    constraints: BoxConstraints(
+                      maxWidth: 400,
+                      minWidth: 400,
+                      maxHeight: mediaQueryData.size.height * 0.3,
                     ),
                     message: message,
                     onShowMessage: onShowMessage,
-                    onReturnAction: onReturnAction,
+                    // onReturnAction: onReturnAction,
                     onAttachmentTap: onAttachmentTap != null
                         ? () {
                             onAttachmentTap(message, attachment);
@@ -178,8 +176,7 @@ class CustomMessageWidget extends StatefulWidget {
                   );
                 }).toList(),
               ),
-              border,
-              reverse,
+              attachmentShape: border,
             );
           },
           'giphy': (context, message, attachments) {
@@ -187,20 +184,20 @@ class CustomMessageWidget extends StatefulWidget {
               borderRadius: attachmentBorderRadiusGeometry ?? BorderRadius.zero,
             );
 
-            return wrapAttachmentWidget(
-              context,
-              Column(
+            return WrapAttachmentWidget(
+              attachmentWidget: Column(
                 children: attachments.map((attachment) {
                   final mediaQueryData = MediaQuery.of(context);
-                  return GiphyAttachment(
+                  return StreamGiphyAttachment(
                     attachment: attachment,
                     message: message,
-                    size: Size(
-                      mediaQueryData.size.width * 0.8,
-                      mediaQueryData.size.height * 0.3,
+                    constraints: BoxConstraints(
+                      maxWidth: 400,
+                      minWidth: 400,
+                      maxHeight: mediaQueryData.size.height * 0.3,
                     ),
                     onShowMessage: onShowMessage,
-                    onReturnAction: onReturnAction,
+                    // onReturnAction: onReturnAction,
                     onAttachmentTap: onAttachmentTap != null
                         ? () {
                             onAttachmentTap(message, attachment);
@@ -209,8 +206,7 @@ class CustomMessageWidget extends StatefulWidget {
                   );
                 }).toList(),
               ),
-              border,
-              reverse,
+              attachmentShape: border,
             );
           },
           'file': (context, message, attachments) {
@@ -226,14 +222,14 @@ class CustomMessageWidget extends StatefulWidget {
               children: attachments
                   .map<Widget>((attachment) {
                     final mediaQueryData = MediaQuery.of(context);
-                    return wrapAttachmentWidget(
-                      context,
-                      FileAttachment(
+                    return WrapAttachmentWidget(
+                      attachmentWidget: StreamFileAttachment(
                         message: message,
                         attachment: attachment,
-                        size: Size(
-                          mediaQueryData.size.width * 0.8,
-                          mediaQueryData.size.height * 0.3,
+                        constraints: BoxConstraints(
+                          maxWidth: 400,
+                          minWidth: 400,
+                          maxHeight: mediaQueryData.size.height * 0.3,
                         ),
                         onAttachmentTap: onAttachmentTap != null
                             ? () {
@@ -241,13 +237,14 @@ class CustomMessageWidget extends StatefulWidget {
                               }
                             : null,
                       ),
-                      border,
-                      reverse,
+                      attachmentShape: border,
                     );
                   })
-                  .insertBetween(SizedBox(
-                    height: attachmentPadding.vertical / 2,
-                  ))
+                  .insertBetween(
+                    SizedBox(
+                      height: attachmentPadding.vertical / 2,
+                    ),
+                  )
                   .toList(),
             );
           },
@@ -288,7 +285,7 @@ class CustomMessageWidget extends StatefulWidget {
   final Message message;
 
   /// The message theme
-  final MessageThemeData messageTheme;
+  final StreamMessageThemeData messageTheme;
 
   /// If true the widget will be mirrored
   final bool reverse;
@@ -405,7 +402,7 @@ class CustomMessageWidget extends StatefulWidget {
   final void Function(Message)? onMessageTap;
 
   /// List of custom actions shown on message long tap
-  final List<MessageAction> customActions;
+  final List<StreamMessageAction> customActions;
 
   /// Customize onTap on attachment
   final void Function(Message message, Attachment attachment)? onAttachmentTap;
@@ -423,7 +420,7 @@ class CustomMessageWidget extends StatefulWidget {
     Widget Function(BuildContext, Message)? deletedBottomRowBuilder,
     void Function(BuildContext, Message)? onMessageActions,
     Message? message,
-    MessageThemeData? messageTheme,
+    StreamMessageThemeData? messageTheme,
     bool? reverse,
     ShapeBorder? shape,
     ShapeBorder? attachmentShape,
@@ -461,7 +458,7 @@ class CustomMessageWidget extends StatefulWidget {
     bool? translateUserAvatar,
     OnQuotedMessageTap? onQuotedMessageTap,
     void Function(Message)? onMessageTap,
-    List<MessageAction>? customActions,
+    List<StreamMessageAction>? customActions,
     void Function(Message message, Attachment attachment)? onAttachmentTap,
     Widget Function(BuildContext, User)? userAvatarBuilder,
   }) =>
@@ -527,7 +524,7 @@ class CustomMessageWidget extends StatefulWidget {
       );
 
   @override
-  _MessageWidgetState createState() => _MessageWidgetState();
+  State<CustomMessageWidget> createState() => _MessageWidgetState();
 }
 
 class _MessageWidgetState extends State<CustomMessageWidget>
@@ -767,10 +764,10 @@ class _MessageWidgetState extends State<CustomMessageWidget>
                                                         if (hasQuotedMessage)
                                                           _buildQuotedMessage(),
                                                         // ignore: lines_longer_than_80_chars
-                                                        if (hasNonUrlAttachments)
-                                                          _parseAttachments(),
                                                         if (!isGiphy)
                                                           _buildTextBubble(),
+                                                        if (hasNonUrlAttachments)
+                                                          _parseAttachments(),
                                                       ],
                                                     ),
                                                   ),
@@ -854,13 +851,13 @@ class _MessageWidgetState extends State<CustomMessageWidget>
 
   Widget _buildQuotedMessage() {
     final isMyMessage = widget.message.user?.id == _streamChat.currentUser?.id;
-    final onTap = widget.message.quotedMessage?.isDeleted != true &&
-            widget.onQuotedMessageTap != null
-        ? () => widget.onQuotedMessageTap!(widget.message.quotedMessageId)
-        : null;
+    // final onTap = widget.message.quotedMessage?.isDeleted != true &&
+    //         widget.onQuotedMessageTap != null
+    //     ? () => widget.onQuotedMessageTap!(widget.message.quotedMessageId)
+    //     : null;
     final chatThemeData = _streamChatTheme;
-    return QuotedMessageWidget(
-      onTap: onTap,
+    return StreamQuotedMessageWidget(
+      // onTap: onTap,
       message: widget.message.quotedMessage!,
       messageTheme: isMyMessage
           ? chatThemeData.otherMessageTheme
@@ -905,8 +902,7 @@ class _MessageWidgetState extends State<CustomMessageWidget>
         }
         return widget.onThreadTap!(message);
       } catch (e, stk) {
-        print(e);
-        print(stk);
+        log("Error ", error: e, stackTrace: stk);
         // ignore: avoid_returning_null_for_void
         return null;
       }
@@ -929,7 +925,7 @@ class _MessageWidgetState extends State<CustomMessageWidget>
       if (showUsername) _buildUsername(usernameKey),
       if (showTimeStamp)
         Text(
-          Jiffy(widget.message.createdAt.toLocal()).jm,
+          Jiffy.parseFromDateTime(widget.message.createdAt.toLocal()).jm,
           style: widget.messageTheme.createdAtStyle,
         ),
       if (showSendingIndicator) _buildSendingIndicator(),
@@ -1014,7 +1010,7 @@ class _MessageWidgetState extends State<CustomMessageWidget>
         hostName.capitalize();
     Attachment fixed =
         urlAttachment.copyWith(titleLink: urlAttachment.ogScrapeUrl);
-    return UrlAttachment(
+    return StreamUrlAttachment(
       urlAttachment: fixed,
       hostDisplayName: hostDisplayName,
       textPadding: widget.textPadding,
@@ -1047,7 +1043,7 @@ class _MessageWidgetState extends State<CustomMessageWidget>
       child: _shouldShowReactions
           ? GestureDetector(
               onTap: () => _showMessageReactionsModalBottomSheet(context),
-              child: ReactionBubble(
+              child: StreamReactionBubble(
                 key: ValueKey('${widget.message.id}.reactions'),
                 reverse: widget.reverse,
                 flipTail: widget.reverse,
@@ -1101,7 +1097,7 @@ class _MessageWidgetState extends State<CustomMessageWidget>
                     : DisplayWidget.show,
           ),
           onCopyTap: (message) =>
-              Clipboard.setData(ClipboardData(text: message.text)),
+              Clipboard.setData(ClipboardData(text: message.text ?? "")),
           messageTheme: widget.messageTheme,
           reverse: widget.reverse,
           showDeleteMessage: widget.showDeleteMessage || isDeleteFailed,
@@ -1118,7 +1114,7 @@ class _MessageWidgetState extends State<CustomMessageWidget>
               !isDeleteFailed &&
               !widget.message.attachments
                   .any((element) => element.type == 'giphy'),
-          showReactions: widget.showReactions,
+          showReactionPicker: widget.showReactions,
           showReplyMessage: widget.showReplyMessage &&
               !isFailedState &&
               widget.onReplyTap != null,
@@ -1141,7 +1137,7 @@ class _MessageWidgetState extends State<CustomMessageWidget>
       barrierColor: _streamChatTheme.colorTheme.overlay,
       builder: (context) => StreamChannel(
         channel: channel,
-        child: MessageReactionsModal(
+        child: StreamMessageReactionsModal(
           messageWidget: widget.copyWith(
             key: const Key('CustomMessageWidget'),
             message: widget.message.copyWith(
@@ -1167,7 +1163,7 @@ class _MessageWidgetState extends State<CustomMessageWidget>
           messageTheme: widget.messageTheme,
           reverse: widget.reverse,
           message: widget.message,
-          showReactions: widget.showReactions,
+          showReactionPicker: widget.showReactions,
         ),
       ),
     );
@@ -1177,9 +1173,11 @@ class _MessageWidgetState extends State<CustomMessageWidget>
     final attachmentGroups = <String, List<Attachment>>{};
 
     widget.message.attachments
-        .where((element) =>
-            (element.titleLink == null && element.type != null) ||
-            element.type == 'giphy')
+        .where(
+      (element) =>
+          (element.titleLink == null && element.type != null) ||
+          element.type == 'giphy',
+    )
         .forEach((e) {
       if (attachmentGroups[e.type] == null) {
         attachmentGroups[e.type!] = [];
@@ -1206,9 +1204,11 @@ class _MessageWidgetState extends State<CustomMessageWidget>
       padding: widget.attachmentPadding,
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: attachmentList.insertBetween(SizedBox(
-          height: widget.attachmentPadding.vertical / 2,
-        )),
+        children: attachmentList.insertBetween(
+          SizedBox(
+            height: widget.attachmentPadding.vertical / 2,
+          ),
+        ),
       ),
     );
   }
@@ -1259,12 +1259,14 @@ class _MessageWidgetState extends State<CustomMessageWidget>
       stream: channel.state?.readStream,
       initialData: channel.state?.read,
       builder: (context, data) {
-        final readList = data.where((it) =>
-            it.user.id != _streamChat.currentUser?.id &&
-            (it.lastRead.isAfter(message.createdAt) ||
-                it.lastRead.isAtSameMomentAs(message.createdAt)));
+        final readList = data.where(
+          (it) =>
+              it.user.id != _streamChat.currentUser?.id &&
+              (it.lastRead.isAfter(message.createdAt) ||
+                  it.lastRead.isAtSameMomentAs(message.createdAt)),
+        );
         final isMessageRead = readList.length >= (channel.memberCount ?? 0) - 1;
-        Widget child = SendingIndicator(
+        Widget child = StreamSendingIndicator(
           message: message,
           isMessageRead: isMessageRead,
           size: style!.fontSize,
@@ -1298,7 +1300,7 @@ class _MessageWidgetState extends State<CustomMessageWidget>
               : 0,
         ),
         child: widget.userAvatarBuilder?.call(context, widget.message.user!) ??
-            UserAvatar(
+            StreamUserAvatar(
               user: widget.message.user!,
               onTap: widget.onUserAvatarTap,
               constraints: widget.messageTheme.avatarTheme!.constraints,
@@ -1316,7 +1318,7 @@ class _MessageWidgetState extends State<CustomMessageWidget>
           padding: isOnlyEmoji ? EdgeInsets.zero : widget.textPadding,
           child: widget.textBuilder != null
               ? widget.textBuilder!(context, widget.message)
-              : MessageText(
+              : StreamMessageText(
                   onLinkTap: widget.onLinkTap,
                   message: widget.message,
                   onMentionTap: widget.onMentionTap,
@@ -1374,7 +1376,7 @@ class _MessageWidgetState extends State<CustomMessageWidget>
     }
 
     if (hasUrlAttachments) {
-      return widget.messageTheme.linkBackgroundColor;
+      return widget.messageTheme.urlAttachmentBackgroundColor;
     }
 
     if (isOnlyEmoji) {
@@ -1433,7 +1435,7 @@ class _ThreadParticipants extends StatelessWidget {
               color: _streamChatTheme.colorTheme.barsBg,
             ),
             padding: const EdgeInsets.all(1),
-            child: UserAvatar(
+            child: StreamUserAvatar(
               user: user,
               constraints: BoxConstraints.loose(const Size.fromRadius(7)),
               showOnlineStatus: false,

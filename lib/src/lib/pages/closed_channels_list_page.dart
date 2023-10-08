@@ -16,26 +16,24 @@ class ClosedChannelsListPages extends StatefulWidget {
 
 String getDate(DateTime createdAt) {
   String date = "";
-  if (createdAt != null) {
-    final lastMessageAt = createdAt.toLocal();
+  final lastMessageAt = createdAt.toLocal();
 
-    final now = DateTime.now();
+  final now = DateTime.now();
 
-    final startOfDay = DateTime(now.year, now.month, now.day);
+  final startOfDay = DateTime(now.year, now.month, now.day);
 
-    if (lastMessageAt.millisecondsSinceEpoch >=
-        startOfDay.millisecondsSinceEpoch) {
-      date = Jiffy(lastMessageAt.toLocal()).jm;
-    } else if (lastMessageAt.millisecondsSinceEpoch >=
-        startOfDay.subtract(const Duration(days: 1)).millisecondsSinceEpoch) {
-      date = 'Yesterday';
-    } else if (startOfDay.difference(lastMessageAt).inDays < 7) {
-      date = Jiffy(lastMessageAt.toLocal()).EEEE;
-    } else if (startOfDay.year - lastMessageAt.year <= 1) {
-      date = Jiffy(lastMessageAt.toLocal()).MMMd;
-    } else {
-      date = Jiffy(lastMessageAt.toLocal()).yMd;
-    }
+  if (lastMessageAt.millisecondsSinceEpoch >=
+      startOfDay.millisecondsSinceEpoch) {
+    date = Jiffy.parseFromDateTime(lastMessageAt.toLocal()).jm;
+  } else if (lastMessageAt.millisecondsSinceEpoch >=
+      startOfDay.subtract(const Duration(days: 1)).millisecondsSinceEpoch) {
+    date = 'Yesterday';
+  } else if (startOfDay.difference(lastMessageAt).inDays < 7) {
+    date = Jiffy.parseFromDateTime(lastMessageAt.toLocal()).EEEE;
+  } else if (startOfDay.year - lastMessageAt.year <= 1) {
+    date = Jiffy.parseFromDateTime(lastMessageAt.toLocal()).MMMd;
+  } else {
+    date = Jiffy.parseFromDateTime(lastMessageAt.toLocal()).yMd;
   }
   return date;
 }
@@ -88,112 +86,101 @@ class _ClosedChannelsListPagesState extends State<ClosedChannelsListPages> {
                       height: 40,
                     ),
                     Expanded(
-                      child: ChannelListView(
-                        pullToRefresh: true,
-                        listBuilder: (context, channels) {
-                          return ListView.builder(
-                              shrinkWrap: true,
-                              scrollDirection: Axis.vertical,
-                              itemCount: channels.length,
-                              itemBuilder: (context, index) {
-                                Channel channel = channels[index];
-                                return InkWell(
-                                    onTap: () => Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ClosedChannelPage(
-                                                    channel: channel,
-                                                  )),
-                                        ),
-                                    child: Card(
-                                      color: const Color(0xFFE1E1E1),
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: CircleAvatar(
-                                              radius: 19,
-                                              backgroundImage: AssetImage(
-                                                  package: "ebchat",
-                                                  "assets/alfred.png"),
-                                              backgroundColor:
-                                                  Theme.of(context).cardColor,
-                                            ),
-                                          ),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "Alfred",
-                                                style: GoogleFonts.poppins(
-                                                    fontWeight: FontWeight.w500,
-                                                    fontSize: 12,
-                                                    color: const Color(
-                                                        0xFF7B7B7B)),
-                                              ),
-                                              Row(
-                                                children: [
-                                                  Text(
-                                                    channel.state!.lastMessage!
-                                                                .text!
-                                                                .trimRight()
-                                                                .length >
-                                                            20
-                                                        ? channel
-                                                                .state!
-                                                                .lastMessage!
-                                                                .text!
-                                                                .substring(
-                                                                    0, 16) +
-                                                            " ..."
-                                                        : channel.state!
-                                                            .lastMessage!.text!
-                                                            .trimRight(),
-                                                    style: GoogleFonts.poppins(
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        fontSize: 13,
-                                                        color: Colors.black),
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 5,
-                                                  ),
-                                                  Text(
-                                                    ".${getDate(channel.state!.lastMessage!.createdAt)}",
-                                                    style: GoogleFonts.poppins(
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        fontSize: 11,
-                                                        color: const Color(
-                                                            0xFF838383)),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          )
-                                        ],
-                                      ),
-                                    ));
-                              });
-                        },
-                        filter: Filter.and(
-                          [
-                            Filter.equal('type', 'messaging'),
-                            Filter.or([
-                              Filter.exists("intercom"),
-                              Filter.equal('frozen', true),
-                            ]),
-                            Filter.in_('members',
-                                [StreamChatCore.of(context).currentUser!.id])
+                      child: StreamChannelListView(
+                        // pullToRefresh: true,
+                        controller: StreamChannelListController(
+                          client: StreamChat.of(context).client,
+                          filter: Filter.and(
+                            [
+                              Filter.equal('type', 'messaging'),
+                              Filter.or([
+                                Filter.exists("intercom"),
+                                Filter.equal('frozen', true),
+                              ]),
+                              Filter.in_('members',
+                                  [StreamChatCore.of(context).currentUser!.id])
+                            ],
+                          ),
+                          channelStateSort: const [
+                            SortOption('last_message_at')
                           ],
                         ),
-                        sort: const [SortOption('last_message_at')],
+                        itemBuilder: (context, channels, index, channelTile) {
+                          Channel channel = channels[index];
+                          return InkWell(
+                              onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => ClosedChannelPage(
+                                              channel: channel,
+                                            )),
+                                  ),
+                              child: Card(
+                                color: const Color(0xFFE1E1E1),
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: CircleAvatar(
+                                        radius: 19,
+                                        backgroundImage: const AssetImage(
+                                            package: "ebchat",
+                                            "assets/alfred.png"),
+                                        backgroundColor:
+                                            Theme.of(context).cardColor,
+                                      ),
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Alfred",
+                                          style: GoogleFonts.poppins(
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 12,
+                                              color: const Color(0xFF7B7B7B)),
+                                        ),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              channel.state!.lastMessage!.text!
+                                                          .trimRight()
+                                                          .length >
+                                                      20
+                                                  ? "${channel.state!.lastMessage!.text!.substring(0, 16)} ..."
+                                                  : channel
+                                                      .state!.lastMessage!.text!
+                                                      .trimRight(),
+                                              style: GoogleFonts.poppins(
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 13,
+                                                  color: Colors.black),
+                                            ),
+                                            const SizedBox(
+                                              width: 5,
+                                            ),
+                                            Text(
+                                              ".${getDate(channel.state!.lastMessage!.createdAt)}",
+                                              style: GoogleFonts.poppins(
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 11,
+                                                  color:
+                                                      const Color(0xFF838383)),
+                                            ),
+                                          ],
+                                        )
+                                      ],
+                                    )
+                                  ],
+                                ),
+                              ));
+                        },
+
                         emptyBuilder: (context) => Center(
                           child: Text(
                             getTranslated(

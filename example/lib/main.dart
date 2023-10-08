@@ -1,5 +1,6 @@
 import 'package:ebchat/ebchat.dart';
 import 'package:flutter/material.dart';
+
 import 'ebchat_screen.dart';
 
 void main() {
@@ -12,7 +13,7 @@ class MyApp extends StatelessWidget {
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return MyHomePage();
+    return const MyHomePage();
   }
 }
 
@@ -62,9 +63,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     messageListViewTheme: const StreamMessageListViewThemeData(
                       backgroundColor: Color(0xFFF8F8F8),
                     ),
-                    channelListViewTheme: const StreamChannelListViewThemeData(
-                      backgroundColor: Color(0xFFF8F8F8),
-                    ),
+                    // channelListViewTheme: const StreamChannelListViewThemeData(
+                    //   backgroundColor: Color(0xFFF8F8F8),
+                    // ),
                   ),
                   child: child,
                 )
@@ -86,25 +87,29 @@ class _MyHomePageState extends State<MyHomePage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => EbChatScreen(
-                            ebchatClient: ebchatClient,
-                            currentEbchatKey: initalEbchatKey),
+                          ebchatClient: ebchatClient,
+                          currentEbchatKey: initalEbchatKey,
+                        ),
                       ),
                     ),
                   ),
-                  child: SizedBox(
+                  child: const SizedBox(
                     height: 50,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
+                      children: [
                         Icon(Icons.chat),
                         SizedBox(
                           width: 7,
                         ),
-                        Text("EBCHAT WIDGET",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 13))
+                        Text(
+                          "EBCHAT WIDGET",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 13,
+                          ),
+                        )
                       ],
                     ),
                   ),

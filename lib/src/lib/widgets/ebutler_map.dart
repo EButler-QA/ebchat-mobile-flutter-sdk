@@ -60,24 +60,24 @@ class _EbutlerMapState extends State<EbutlerMap> {
                 });
               }
             }),
-        layers: [
-          TileLayerOptions(
+        children: [
+          TileLayer(
             urlTemplate:
                 "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key=$Config.azureMapsApiKey!",
             additionalOptions: {'subscriptionKey': Config.azureMapsApiKey!},
           ),
-          MarkerLayerOptions(
+          MarkerLayer(
             markers: markers,
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.of(context).pop(markers.first.point),
-        child: Icon(
+        backgroundColor: AppColors.primary,
+        child: const Icon(
           Icons.check,
           color: Colors.white,
         ),
-        backgroundColor: AppColors.primary,
       ),
     );
   }
