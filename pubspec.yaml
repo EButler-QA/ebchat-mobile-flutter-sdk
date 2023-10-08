@@ -1,6 +1,6 @@
 name: ebchat
 description: EBchat widget
-version: 2.0.0+1
+version: 3.0.0+1
 homepage: https://ebchat-saas.e-butler.com/
 repository: https://github.com/EButler-QA/ebchat-mobile-flutter-sdk
 issue_tracker: https://github.com/EButler-QA/ebchat-mobile-flutter-sdk/issues
