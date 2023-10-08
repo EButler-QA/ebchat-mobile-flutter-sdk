@@ -28,10 +28,10 @@ class _SplashScreenState extends State<SplashScreen> {
   bool loading = false;
   late StreamChatClient client;
   StreamSubscription<bool>? subscription;
-  final ChatSerivice chatSerivice = ChatSerivice();
+  final ChatService chatSerivice = ChatService();
 
   StreamSubscription<bool> listenDataFreez() {
-    return Provider.of<EBchatProvider>(context, listen: false)
+    return Provider.of<NavigatorProvider>(context, listen: false)
         .globalChannel!
         .frozenStream
         .listen((data) async {
@@ -43,7 +43,7 @@ class _SplashScreenState extends State<SplashScreen> {
         initalIndex = 1;
         selectedIndex = 1;
         Config.virtual_intrest = "";
-        await Provider.of<EBchatProvider>(context, listen: false)
+        await Provider.of<NavigatorProvider>(context, listen: false)
             .findAlfredChannel(context);
         subscription!.cancel();
         subscription = null;
@@ -70,8 +70,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void initApp() async {
     final client = StreamChatCore.of(context).client;
-    EBchatProvider eBchatProvider =
-        Provider.of<EBchatProvider>(context, listen: false);
+    NavigatorProvider eBchatProvider =
+        Provider.of<NavigatorProvider>(context, listen: false);
     if (StreamChatCore.of(context).currentUser == null) {
       loading = true;
 
@@ -104,7 +104,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> getUserOpenConversation() {
-    return Provider.of<EBchatProvider>(context, listen: false)
+    return Provider.of<NavigatorProvider>(context, listen: false)
         .findAlfredChannel(context);
   }
 

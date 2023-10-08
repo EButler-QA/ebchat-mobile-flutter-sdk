@@ -74,9 +74,10 @@ class _HomeScreenUserState extends State<HomeScreenUser> {
                     const SizedBox(
                       height: 10,
                     ),
-                    Provider.of<EBchatProvider>(context).globalChannel != null
+                    Provider.of<NavigatorProvider>(context).globalChannel !=
+                            null
                         ? StreamChannel(
-                            channel: Provider.of<EBchatProvider>(context,
+                            channel: Provider.of<NavigatorProvider>(context,
                                     listen: false)
                                 .globalChannel!,
                             child: ElevatedButton(
@@ -97,7 +98,7 @@ class _HomeScreenUserState extends State<HomeScreenUser> {
                                       child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Provider.of<EBchatProvider>(context,
+                                      Provider.of<NavigatorProvider>(context,
                                                       listen: false)
                                                   .globalChannel
                                                   ?.state
@@ -134,7 +135,8 @@ class _HomeScreenUserState extends State<HomeScreenUser> {
                                                 ),
                                               ],
                                             ),
-                                      if (Provider.of<EBchatProvider>(context,
+                                      if (Provider.of<NavigatorProvider>(
+                                                  context,
                                                   listen: false)
                                               .globalChannel!
                                               .state!
@@ -147,7 +149,7 @@ class _HomeScreenUserState extends State<HomeScreenUser> {
                                             child: Padding(
                                               padding: const EdgeInsets.all(3),
                                               child: Text(
-                                                '${Provider.of<EBchatProvider>(context, listen: false).globalChannel!.state!.unreadCount}',
+                                                '${Provider.of<NavigatorProvider>(context, listen: false).globalChannel!.state!.unreadCount}',
                                                 style: const TextStyle(
                                                     fontSize: 15,
                                                     fontWeight: FontWeight.bold,

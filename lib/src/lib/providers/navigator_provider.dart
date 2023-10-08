@@ -5,16 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
-class EBchatProvider with ChangeNotifier {
+class NavigatorProvider with ChangeNotifier {
   Channel? globalChannel;
   User? currentUser;
-  final ChatSerivice chatSerivice = ChatSerivice();
+  final ChatService chatSerivice = ChatService();
 
 //EBCHAT SAAS BACKEND
-
-  startBotFlow(Map<String, String> body, String ebchatkey) {
-    chatSerivice.startBotFlow(body, ebchatkey);
-  }
 
   ///GETSTREAM
   void setChannel(Channel? tmp, bool mounted) {
@@ -80,7 +76,7 @@ class EBchatProvider with ChangeNotifier {
   }
 
   Future<String> getStreamUserToken(String userID, String ebchatkey) async {
-    String token = await ChatSerivice.getStreamUserToken(userID, ebchatkey);
+    String token = await ChatService.getStreamUserToken(userID, ebchatkey);
     return token;
   }
 

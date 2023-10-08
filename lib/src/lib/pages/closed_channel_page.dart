@@ -55,7 +55,7 @@ class ClosedChannelPage extends StatelessWidget {
                       if (p1.id == Config.alfredId) {
                         return CircleAvatar(
                           radius: 18,
-                          backgroundImage: AssetImage(
+                          backgroundImage: const AssetImage(
                               package: "ebchat", "assets/alfred.png"),
                           backgroundColor: Theme.of(context).cardColor,
                         );
@@ -102,6 +102,16 @@ class ClosedChannelPage extends StatelessWidget {
                     height: 23,
                   ),
                   ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: AppColors.primary,
+                      onPrimary: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
                     child: SizedBox(
                         width: double.infinity,
                         height: 50,
@@ -114,17 +124,6 @@ class ClosedChannelPage extends StatelessWidget {
                                 color: Colors.white),
                           ),
                         )),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      primary: AppColors.primary,
-                      onPrimary: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
                   ),
                 ],
               ),

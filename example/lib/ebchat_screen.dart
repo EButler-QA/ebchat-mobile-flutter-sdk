@@ -38,7 +38,7 @@ class _EbChatScreenState extends State<EbChatScreen> {
       //TODO: you can store your user extrat attribute
       "phone": "+9743333333",
     });
-    String getStreamToken = await ChatSerivice.getStreamUserToken(
+    String getStreamToken = await ChatService.getStreamUserToken(
         currentUser!.id, widget.currentEbchatKey);
 
     await ebchatStream.client.connectUser(

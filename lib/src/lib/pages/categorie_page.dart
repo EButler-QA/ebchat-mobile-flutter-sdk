@@ -67,6 +67,19 @@ class _CategoriePageState extends State<CategoriePage> {
                         ),
                         const Spacer(),
                         ElevatedButton(
+                          onPressed: () async {
+                            await widget.channel!.sendMessage(Message(
+                                text:
+                                    "${getTranslated("tell me more about this service")}: ${Config.virtual_intrest}"));
+                            widget.navigate(0);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: AppColors.primary,
+                            onPrimary: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
                           child: SizedBox(
                               width: double.infinity,
                               height: 50,
@@ -79,20 +92,6 @@ class _CategoriePageState extends State<CategoriePage> {
                                       color: Colors.white),
                                 ),
                               )),
-                          onPressed: () async {
-                            await widget.channel!.sendMessage(Message(
-                                text: getTranslated(
-                                        "tell me more about this service") +
-                                    ": ${Config.virtual_intrest}"));
-                            widget.navigate(0);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            primary: AppColors.primary,
-                            onPrimary: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
                         ),
                         const SizedBox(
                           height: 40,
