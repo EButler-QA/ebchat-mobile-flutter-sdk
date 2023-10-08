@@ -43,8 +43,8 @@ class _EBChatScreenState extends State<EBChatWidget> {
   Future<void> initPackage(BuildContext mcontext) async {
     CompanyProvider companyProvider =
         Provider.of<CompanyProvider>(mcontext, listen: false);
-    EBchatProvider eBchatProvider =
-        Provider.of<EBchatProvider>(mcontext, listen: false);
+    NavigatorProvider eBchatProvider =
+        Provider.of<NavigatorProvider>(mcontext, listen: false);
     Config.setConfig(widget.arabicApp, widget.azureMapsApiKey);
     await loadTextString();
     companyProvider.setCompany(mounted);
@@ -60,7 +60,7 @@ class _EBChatScreenState extends State<EBChatWidget> {
           create: (_) => ThemeModel(),
         ),
         ChangeNotifierProvider(
-          create: (gContext) => EBchatProvider(),
+          create: (gContext) => NavigatorProvider(),
         ),
         ChangeNotifierProvider(
           create: (gContext) => CompanyProvider(),

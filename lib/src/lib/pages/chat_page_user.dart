@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:ebchat/src/lib/Theme/my_theme.dart';
+import 'package:ebchat/src/lib/components/getstream/custom_message_input.dart';
+import 'package:ebchat/src/lib/components/getstream/custom_message_listview.dart';
 import 'package:ebchat/src/lib/config/config.dart' as cf;
 import 'package:ebchat/src/lib/providers/company_provider.dart';
 import 'package:ebchat/src/lib/providers/navigator_provider.dart';
@@ -25,7 +27,9 @@ import 'package:stream_chat_flutter/scrollable_positioned_list/scrollable_positi
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
 class ChatPageUser extends StatefulWidget {
-  const ChatPageUser({Key? key}) : super(key: key);
+  const ChatPageUser({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<ChatPageUser> createState() => _ChatPageUserState();
@@ -35,62 +39,44 @@ class _ChatPageUserState extends State<ChatPageUser> {
   final int pageIndex = 0;
   final String title = cf.getTranslated('Messages');
   FocusNode myFocusNode = FocusNode();
+  final _audioRecorder = Record();
   Message? quotedMessage;
-  bool recordingStarted = false;
   bool emojiShowing = false;
-  late final StreamMessageInputController messageInputController;
+  late StreamMessageInputController chatMsgTextController;
   late final ItemScrollController scroller;
   bool typing = false;
   User? typingUser;
-  bool showMessageInput = false;
+  final ChatService chatSerivice = ChatService();
   Attachment? voiceNoteAttachement;
-  late final AudioPlayer _audioPlayer;
-  final ChatSerivice chatSerivice = ChatSerivice();
-  final _audioRecorder = Record();
-  void displayTypingSound() async {
-    RingerModeStatus ringerStatus = await SoundMode.ringerModeStatus;
-
-    if (ringerStatus == RingerModeStatus.normal) {
-      _audioPlayer.setAsset("assets/typing.mp3");
-      _audioPlayer.play();
-    }
-  }
-
+  bool recordingStarted = false;
+  late User? currentUser;
   @override
   void initState() {
-    // myFocusNode = FocusNode(descendantsAreFocusable: false);
-
-    myFocusNode.addListener(() {
-      if (myFocusNode.hasFocus) {
-        if (mounted) {
-          setState(() {
-            emojiShowing = false;
-          });
-        }
-      }
-    });
-    messageInputController = StreamMessageInputController();
+    chatMsgTextController = StreamMessageInputController(message: Message());
     scroller = ItemScrollController();
-    _audioPlayer = AudioPlayer();
+    currentUser = StreamChatCore.of(context).currentUser;
     initApp();
     super.initState();
   }
 
+  @override
+  void dispose() {
+    chatMsgTextController.dispose();
+    super.dispose();
+  }
+
   void initApp() async {
-    if (Provider.of<EBchatProvider>(context, listen: false).globalChannel ==
-        null) {
-      await Provider.of<EBchatProvider>(context, listen: false)
-          .findAlfredChannel(context);
+    if (context.read<NavigatorProvider>().globalChannel == null) {
+      await context.read<NavigatorProvider>().findAlfredChannel(context);
     }
-    Provider.of<EBchatProvider>(context, listen: false)
-        .globalChannel!
-        .on('typing.start')
+
+    context
+        .read<NavigatorProvider>()
+        .globalChannel
+        ?.on('typing.start')
         .listen((event) {
       if (mounted) {
-        if (event.user!.id != StreamChat.of(context).currentUser!.id &&
-            !typing) {
-          displayTypingSound();
-
+        if (event.user!.id != currentUser!.id && !typing) {
           setState(() {
             typingUser = event.user;
             typing = true;
@@ -100,13 +86,13 @@ class _ChatPageUserState extends State<ChatPageUser> {
     });
 
 // add typing stop event handling
-    Provider.of<EBchatProvider>(context, listen: false)
-        .globalChannel!
-        .on('typing.stop')
+    context
+        .read<NavigatorProvider>()
+        .globalChannel
+        ?.on('typing.stop')
         .listen((event) {
       if (mounted) {
-        if (event.user!.id != StreamChat.of(context).currentUser!.id &&
-            typing) {
+        if (event.user!.id != currentUser!.id && typing) {
           setState(() {
             typing = false;
           });
@@ -114,57 +100,18 @@ class _ChatPageUserState extends State<ChatPageUser> {
         }
       }
     });
-    showMessageInput = !(Provider.of<EBchatProvider>(context, listen: false)
-                .globalChannel!
-                .state!
-                .messages
-                .lastWhere((element) => element.user!.id == cf.Config.alfredId)
-                .extraData["finalBotMessage"] ==
-            false) ||
-        Provider.of<EBchatProvider>(context, listen: false)
-                .globalChannel!
-                .extraData["assigned"] ==
-            true;
-    //display input message input
-    Provider.of<EBchatProvider>(context, listen: false)
-        .globalChannel!
-        .on(EventType.messageNew)
-        .listen((event) {
-      if (event.message!.user!.id == cf.Config.alfredId) {
-        showMessageInput =
-            !(event.message!.extraData["finalBotMessage"] == false);
-      }
+  }
 
-      if (Provider.of<EBchatProvider>(context, listen: false)
-              .globalChannel!
-              .extraData["assigned"] ==
-          true) {
-        showMessageInput = true;
-      }
-      setState(() {
-        showMessageInput;
-      });
+  void stopRecording() {
+    setState(() {
+      recordingStarted = false;
     });
-  }
-
-  _onEmojiSelected(Emoji emoji) {
-    messageInputController
-      ..text += emoji.emoji
-      ..selection = TextSelection.fromPosition(
-          TextPosition(offset: messageInputController.text.length));
-  }
-
-  _onBackspacePressed() {
-    messageInputController
-      ..text = messageInputController.text.characters.skipLast(1).toString()
-      ..selection = TextSelection.fromPosition(
-          TextPosition(offset: messageInputController.text.length));
   }
 
   void sendVoiceNote(Message initalMessage, [bool confirmed = false]) async {
     final client = StreamChatCore.of(context).client;
     final channel =
-        Provider.of<EBchatProvider>(context, listen: false).globalChannel!;
+        Provider.of<NavigatorProvider>(context, listen: false).globalChannel!;
     // ignore: parameter_assignments
     if (!confirmed) {
       Message message = initalMessage.copyWith(
@@ -188,7 +135,7 @@ class _ChatPageUserState extends State<ChatPageUser> {
           style: "primary",
         )
       ]));
-      channel.state!.messages.add(message);
+      channel.state!.updateMessage(message);
 
       try {
         if (!message.attachments.first.uploadState.isSuccess) {
@@ -208,84 +155,60 @@ class _ChatPageUserState extends State<ChatPageUser> {
           channel.type,
         );
 
-        channel.state!.messages.add(response.message);
-        if (!channel.extraData.containsKey("initiated")) {
-          channel.updatePartial(set: {"initiated": true});
-          /*  chatSerivice.afterMidnight(
-              _channel.id!,
-              Provider.of<CompanyProvider>(context, listen: false)
-                  .company!
-                  .ebchatkey!);*/
+        channel.state!.updateMessage(response.message);
+        if (context
+                .read<NavigatorProvider>()
+                .globalChannel
+                ?.extraData
+                .containsKey("initiated") ==
+            false) {
+          context
+              .read<NavigatorProvider>()
+              .globalChannel
+              ?.updatePartial(set: {"initiated": true});
+          chatSerivice.afterMidnight(
+              context.read<NavigatorProvider>().globalChannel!.id!,
+              context.read<CompanyProvider>().company!.ebchatkey!);
         }
       } catch (e) {
+        print("//////////////");
         print(e);
       }
     } else {
       channel.state!.removeMessage(initalMessage);
-      initalMessage.attachments
-          .removeWhere((element) => element.actions!.isNotEmpty);
+      initalMessage.attachments.removeWhere(
+          (element) => element.actions != null && element.actions!.isNotEmpty);
       channel.sendMessage(Message(
         attachments: initalMessage.attachments,
       ));
     }
   }
 
-  void _recordingFinishedCallback(String path) {
-    final uri = Uri.parse(path);
-    File file = File(uri.path);
-    file.length().then(
-      (fileSize) {
-        setState(() {
-          voiceNoteAttachement = Attachment(
-            type: 'voicenote',
-            extraData: {"uri": uri},
-            file: AttachmentFile(
-              size: fileSize,
-              path: uri.path,
-            ),
-          );
-        });
-        /*  sendVoiceNote(Message(
-          attachments: [
-            Attachment(
-              type: 'voicenote',
-              file: AttachmentFile(
-                size: fileSize,
-                path: uri.path,
-              ),
-            )
-          ],
-        ));*/
-      },
-    );
+  Future<void> storeAnswerAndCallNextBot(
+      String botflowId, String nextNodeIndex) async {
+    String cid = context.read<NavigatorProvider>().globalChannel!.cid!;
+    await ChatService.startBotFlow(
+        language: cf.Config.languageCode!,
+        cid: cid,
+        botflowId: botflowId,
+        nextNodeIndex: nextNodeIndex);
+    return;
   }
-
-  /* @override
-  void dispose() {
-    // Clean up the focus node when the Form is disposed.
-    myFocusNode.dispose();
-    super.dispose();
-  }*/
 
   @override
   Widget build(BuildContext context) {
-    return Provider.of<EBchatProvider>(context, listen: false).globalChannel !=
-            null
+    return Provider.of<NavigatorProvider>(context).globalChannel != null
         ? StreamChannel(
-            channel: Provider.of<EBchatProvider>(context, listen: false)
-                .globalChannel!,
+            channel: context.watch<NavigatorProvider>().globalChannel!,
             child: Container(
               color: StreamMessageListViewTheme.of(context).backgroundColor,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   Expanded(
-                    child: CustomMessageListView(
-                      adminPrivilege: false,
+                    child: CustomStreamMessageListView(
                       key: ValueKey(
-                          Provider.of<EBchatProvider>(context, listen: false)
-                              .globalChannel!
-                              .id),
+                          context.watch<NavigatorProvider>().globalChannel!.id),
                       scrollController: scroller,
                       messageBuilder:
                           (context, details, messages, defaultMessage) {
@@ -318,326 +241,34 @@ class _ChatPageUserState extends State<ChatPageUser> {
                               customAttachmentBuilders: {
                                 'choices':
                                     (context, defaultMessage, attachments) {
-                                  final actions = attachments.first.actions;
+                                  final List<ac.Action>? actions =
+                                      attachments.first.actions;
+
                                   Message messageWithChoicesAttachement =
                                       messages.firstWhere((msg) =>
-                                          msg.attachments.indexWhere(
-                                              (attachment) =>
-                                                  attachment.type ==
-                                                  'choices') !=
-                                          -1);
-
-                                  List<Widget> actionsWidget =
-                                      actions!.map((e) {
-                                    switch (e.type) {
-                                      case "form":
-                                        return Row(
-                                          children: [
-                                            const Spacer(),
-                                            ElevatedButton(
-                                                style: ElevatedButton.styleFrom(
-                                                  foregroundColor: e.value!
-                                                          .contains(";cancel")
-                                                      ? AppColors.secndaryLight
-                                                      : Colors.white,
-                                                  backgroundColor: e.value!
-                                                          .contains(";cancel")
-                                                      ? Colors.white
-                                                      : AppColors.secndaryLight,
-                                                  shape: RoundedRectangleBorder(
-                                                    side: const BorderSide(
-                                                      color: AppColors
-                                                          .secndaryLight,
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                ),
-                                                onPressed: () {
-                                                  showDialog(
-                                                    context: context,
-                                                    builder:
-                                                        (BuildContext context) {
-                                                      return UserInfoDialog(
-                                                        questionType: e.name,
-                                                        question:
-                                                            messageWithChoicesAttachement
-                                                                        .text ==
-                                                                    null
-                                                                ? e.name
-                                                                : messageWithChoicesAttachement
-                                                                    .text!,
-                                                      );
-                                                    },
-                                                  ).then((value) {
-                                                    if (value != null &&
-                                                        value is String) {
-                                                      Provider.of<EBchatProvider>(
-                                                              context,
-                                                              listen: false)
-                                                          .globalChannel!
-                                                          .sendMessage(Message(
-                                                              text: value));
-                                                      Provider.of<EBchatProvider>(
-                                                              context,
-                                                              listen: false)
-                                                          .startBotFlow(
-                                                              {
-                                                            "cid": Provider.of<
-                                                                        EBchatProvider>(
-                                                                    context,
-                                                                    listen:
-                                                                        false)
-                                                                .globalChannel!
-                                                                .cid!,
-                                                            "args": e.value!
-                                                                .replaceAll(
-                                                                    "/bot ", "")
-                                                                .toLowerCase(),
-                                                            "lang": cf.Config
-                                                                        .textDirection ==
-                                                                    TextDirection
-                                                                        .ltr
-                                                                ? "en"
-                                                                : "ar",
-                                                            "idMsgWithChoices":
-                                                                messageWithChoicesAttachement
-                                                                    .id
-                                                          },
-                                                              Provider.of<CompanyProvider>(
-                                                                      context,
-                                                                      listen:
-                                                                          false)
-                                                                  .company!
-                                                                  .ebchatkey!);
-                                                    } else if (value != null &&
-                                                        value == true) {
-                                                      Provider.of<EBchatProvider>(
-                                                              context,
-                                                              listen: false)
-                                                          .globalChannel!
-                                                          .sendMessage(Message(
-                                                              text: cf
-                                                                  .getTranslated(
-                                                                      "Done")));
-                                                      Provider.of<EBchatProvider>(
-                                                              context,
-                                                              listen: false)
-                                                          .startBotFlow(
-                                                              {
-                                                            "cid": Provider.of<
-                                                                        EBchatProvider>(
-                                                                    context,
-                                                                    listen:
-                                                                        false)
-                                                                .globalChannel!
-                                                                .cid!,
-                                                            "choiceSelected": cf
-                                                                .getTranslated(
-                                                                    "Done"),
-                                                            "args": e.value!
-                                                                .replaceAll(
-                                                                    "/bot ", "")
-                                                                .toLowerCase(),
-                                                            "lang": cf.Config
-                                                                        .textDirection ==
-                                                                    TextDirection
-                                                                        .ltr
-                                                                ? "en"
-                                                                : "ar",
-                                                            "idMsgWithChoices":
-                                                                messageWithChoicesAttachement
-                                                                    .id
-                                                          },
-                                                              Provider.of<CompanyProvider>(
-                                                                      context,
-                                                                      listen:
-                                                                          false)
-                                                                  .company!
-                                                                  .ebchatkey!);
-                                                    } else if (value
-                                                        is Attachment) {
-                                                      Provider.of<EBchatProvider>(
-                                                              context,
-                                                              listen: false)
-                                                          .globalChannel!
-                                                          .sendMessage(Message(
-                                                            attachments: [
-                                                              value
-                                                            ],
-                                                          ))
-                                                          .then((value) =>
-                                                              Provider.of<EBchatProvider>(
-                                                                      context,
-                                                                      listen:
-                                                                          false)
-                                                                  .startBotFlow(
-                                                                      {
-                                                                    "cid": Provider.of<EBchatProvider>(
-                                                                            context,
-                                                                            listen:
-                                                                                false)
-                                                                        .globalChannel!
-                                                                        .cid!,
-                                                                    "args": e
-                                                                        .value!
-                                                                        .replaceAll(
-                                                                            "/bot ",
-                                                                            "")
-                                                                        .toLowerCase(),
-                                                                    "lang": cf.Config.textDirection ==
-                                                                            TextDirection.ltr
-                                                                        ? "en"
-                                                                        : "ar",
-                                                                    "idMsgWithChoices":
-                                                                        messageWithChoicesAttachement
-                                                                            .id
-                                                                  },
-                                                                      Provider.of<CompanyProvider>(
-                                                                              context,
-                                                                              listen: false)
-                                                                          .company!
-                                                                          .ebchatkey!));
-                                                    }
-                                                  });
-                                                },
-                                                child: SizedBox(
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width -
-                                                            200,
-                                                    child: Padding(
-                                                      padding: const EdgeInsets
-                                                          .symmetric(
-                                                          vertical: 3.0),
-                                                      child: Center(
-                                                          child: Text(
-                                                        e.text,
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                        style:
-                                                            GoogleFonts.poppins(
-                                                          fontWeight:
-                                                              FontWeight.w400,
-                                                          fontSize: 14,
-                                                        ),
-                                                      )),
-                                                    ))),
-                                            const Spacer()
-                                          ],
-                                        );
-
-                                      default:
-                                        return Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 5.0),
-                                          child: Row(
-                                            children: [
-                                              const Spacer(),
-                                              ElevatedButton(
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    foregroundColor: e.value!
-                                                            .contains(";cancel")
-                                                        ? AppColors
-                                                            .secndaryLight
-                                                        : Colors.white,
-                                                    backgroundColor: e.value!
-                                                            .contains(";cancel")
-                                                        ? Colors.white
-                                                        : AppColors
-                                                            .secndaryLight,
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      side: const BorderSide(
-                                                        color: AppColors
-                                                            .secndaryLight,
-                                                      ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
-                                                    ),
-                                                  ),
-                                                  onPressed: () {
-                                                    Provider.of<EBchatProvider>(
-                                                            context,
-                                                            listen: false)
-                                                        .globalChannel!
-                                                        .sendMessage(Message(
-                                                            text: e.text));
-                                                    Provider.of<EBchatProvider>(
-                                                            context,
-                                                            listen: false)
-                                                        .startBotFlow(
-                                                            {
-                                                          "cid": Provider.of<
-                                                                      EBchatProvider>(
-                                                                  context,
-                                                                  listen: false)
-                                                              .globalChannel!
-                                                              .cid!,
-                                                          "args": e.value!
-                                                              .replaceAll(
-                                                                  "/bot ", "")
-                                                              .toLowerCase(),
-                                                          "lang": cf.Config
-                                                                      .textDirection ==
-                                                                  TextDirection
-                                                                      .ltr
-                                                              ? "en"
-                                                              : "ar",
-                                                          "idMsgWithChoices":
-                                                              messageWithChoicesAttachement
-                                                                  .id
-                                                        },
-                                                            Provider.of<CompanyProvider>(
-                                                                    context,
-                                                                    listen:
-                                                                        false)
-                                                                .company!
-                                                                .ebchatkey!);
-                                                  },
-                                                  child: SizedBox(
-                                                      width:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width -
-                                                              200,
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .symmetric(
-                                                                vertical: 3.0),
-                                                        child: Center(
-                                                            child: Text(
-                                                          e.text,
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                          style: GoogleFonts
-                                                              .poppins(
-                                                            fontWeight:
-                                                                FontWeight.w400,
-                                                            fontSize: 14,
-                                                          ),
-                                                        )),
-                                                      ))),
-                                              const Spacer()
-                                            ],
-                                          ),
-                                        );
-                                    }
-                                  }).toList();
+                                          msg.attachments.any((attachment) =>
+                                              attachment.type == 'choices'));
+                                  List<Widget> actionsWidget = [];
+                                  if (actions != null) {
+                                    actionsWidget = actions
+                                        .where((element) =>
+                                            element.name != "EditText")
+                                        .map((action) {
+                                      return _buildActionButton(action,
+                                          messageWithChoicesAttachement);
+                                    }).toList();
+                                  }
 
                                   return Padding(
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 4.0),
                                     child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
                                       children: actionsWidget,
                                     ),
                                   );
-                                }
+                                },
                               },
                               userAvatarBuilder: (p0, p1) {
                                 if (p1.id == cf.Config.alfredId) {
@@ -692,8 +323,10 @@ class _ChatPageUserState extends State<ChatPageUser> {
                                     color: Colors.grey.shade300,
                                     child: Column(children: [
                                       if (defaultMessage.attachments.indexWhere(
-                                              (element) => element
-                                                  .actions!.isNotEmpty) !=
+                                              (element) =>
+                                                  element.actions != null &&
+                                                  element
+                                                      .actions!.isNotEmpty) !=
                                           -1)
                                         Row(
                                           children: [
@@ -702,9 +335,9 @@ class _ChatPageUserState extends State<ChatPageUser> {
                                                 height: 50,
                                                 child: TextButton(
                                                   onPressed: () {
-                                                    Provider.of<EBchatProvider>(
-                                                            context,
-                                                            listen: false)
+                                                    context
+                                                        .read<
+                                                            NavigatorProvider>()
                                                         .globalChannel!
                                                         .state!
                                                         .removeMessage(
@@ -857,11 +490,12 @@ class _ChatPageUserState extends State<ChatPageUser> {
                       : Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: Image.asset(
-                                  package: "ebchat", "assets/blueMustache.png"),
+                            Image.asset(
+                              package: "ebchat",
+                              "assets/blueMustache.png",
+                              height: 25,
+                              width: 25,
+                              color: AppColors.primary,
                             ),
                             const SizedBox(
                               width: 8,
@@ -875,24 +509,19 @@ class _ChatPageUserState extends State<ChatPageUser> {
                           ],
                         ),
                   if (recordingStarted)
-                    GestureDetector(
-                      onTap: () => stop(),
-                      child: Image.asset(
-                        package: "ebchat",
-                        "assets/recording.gif",
-                        height: 30,
-                        color: Colors.blue,
-                        width: MediaQuery.of(context).size.width,
-                      ),
+                    Image.asset(
+                      package: "ebchat",
+                      "assets/recording.gif",
+                      height: 30,
+                      color: Colors.blue,
+                      width: MediaQuery.of(context).size.width,
                     ),
                   if (voiceNoteAttachement != null)
                     Column(
                       children: [
                         AudioPlayerMessage(
-                            /*    source: AudioSource.uri(
-                                voiceNoteAttachement!.localUri!),*/
                             source: AudioSource.uri(
-                                voiceNoteAttachement!.extraData["uri"] as Uri),
+                                voiceNoteAttachement!.localUri!),
                             fileSize:
                                 voiceNoteAttachement!.mimeType == "video/webm"
                                     ? voiceNoteAttachement!.fileSize!
@@ -939,7 +568,6 @@ class _ChatPageUserState extends State<ChatPageUser> {
                                     sendVoiceNote(
                                         Message(attachments: [
                                           voiceNoteAttachement!
-                                              .copyWith(extraData: {})
                                         ]),
                                         true);
                                     setState(() {
@@ -962,82 +590,113 @@ class _ChatPageUserState extends State<ChatPageUser> {
                         ),
                       ],
                     ),
-                  StreamCustomMessageInput(
+                  const Divider(),
+                  CustomStreamMessageInput(
                     showCommandsButton: false,
-                    messageInputController: messageInputController,
-                    autofocus: true,
-                    disable: !showMessageInput,
-                    disableAttachments: !showMessageInput,
-                    // quotedMessage: quotedMessage,
-                    focusNode: myFocusNode,
-                    onMessageSent: (_) async {
-                      if (!Provider.of<EBchatProvider>(context, listen: false)
+                    messageInputController: chatMsgTextController,
+                    autofocus: false,
+                    shouldKeepFocusAfterMessage: true,
+                    preMessageSending: (p0) {
+                      Message? newMessage;
+                      chatMsgTextController.clear();
+                      if (context
+                          .read<NavigatorProvider>()
                           .globalChannel!
                           .extraData
-                          .containsKey("initiated")) {
-                        Provider.of<EBchatProvider>(context, listen: false)
+                          .containsKey("dispatchTo")) {
+                        Map<String, Object?> extraData = {...p0.extraData};
+                        extraData['dispatchTo'] = context
+                            .read<NavigatorProvider>()
+                            .globalChannel!
+                            .extraData['dispatchTo'];
+                        newMessage = p0.copyWith(extraData: extraData);
+                      }
+                      setState(() {});
+                      return newMessage ?? p0;
+                    },
+                    activeSendButton: const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Icon(
+                        Icons.send,
+                        size: 20,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    onMessageSent: (msg) async {
+                      if (!context
+                              .read<NavigatorProvider>()
+                              .globalChannel!
+                              .extraData
+                              .containsKey("initiated") ||
+                          context
+                                  .read<NavigatorProvider>()
+                                  .globalChannel!
+                                  .extraData["initiated"] ==
+                              false) {
+                        await context
+                            .read<NavigatorProvider>()
                             .globalChannel!
                             .updatePartial(set: {"initiated": true});
-                        /* Provider.of<EBchatProvider>(context, listen: false)
-                            .afterMidnight(
-                                Provider.of<EBchatProvider>(context,
-                                        listen: false)
-                                    .globalChannel!
-                                    .id!,
-                                Provider.of<CompanyProvider>(context,
-                                        listen: false)
-                                    .company!
-                                    .ebchatkey!);*/
                       }
-                      Future.delayed(const Duration(milliseconds: 5), () {
-                        if (!myFocusNode.hasFocus) {
-                          //     FocusScope.of(context).requestFocus(myFocusNode);
-                          myFocusNode.requestFocus();
+                      Message messageWithChoicesAttachement = context
+                          .read<NavigatorProvider>()
+                          .globalChannel!
+                          .state!
+                          .messages
+                          .firstWhere((msg) =>
+                              msg.attachments.indexWhere((attachment) =>
+                                  attachment.type == 'choices') !=
+                              -1);
+
+                      if (messageWithChoicesAttachement.id.isNotEmpty) {
+                        final actions = messageWithChoicesAttachement
+                            .attachments.first.actions;
+                        dynamic action =
+                            actions?.firstWhere((e) => e.name == "EditText");
+                        if (action != null && action.name == "EditText") {
+                          List<String> parms =
+                              (action.value as String).split(";");
+                          await storeAnswerAndCallNextBot(parms[0], parms[1]);
                         }
-                      });
+                      }
                     },
-                    shouldKeepFocusAfterMessage: true,
                     onQuotedMessageCleared: () {
                       setState(() {
                         quotedMessage = null;
                       });
                     },
-                    actions: !showMessageInput
-                        ? []
-                        : [
-                            GestureDetector(
-                              onTap: () {
-                                recordingStarted ? stop() : start();
-                              },
-                              child: Icon(
-                                recordingStarted ? Icons.stop : Icons.mic,
-                                color: recordingStarted
-                                    ? Colors.red.withOpacity(0.3)
-                                    : StreamChatTheme.of(context)
-                                        .primaryIconTheme
-                                        .color,
-                              ),
-                            ),
-                            InkWell(
-                              child: Icon(
-                                !emojiShowing
-                                    ? Icons.emoji_emotions
-                                    : Icons.keyboard,
-                                //Icons.emoji_emotions,
-                                color: Colors.grey.shade600,
-                                size: 20.0,
-                              ),
-                              onTap: () {
-                                setState(() {
-                                  emojiShowing = !emojiShowing;
-                                });
-                                emojiShowing
-                                    ? FocusScope.of(context).unfocus()
-                                    : FocusScope.of(context)
-                                        .requestFocus(myFocusNode);
-                              },
-                            ),
-                          ],
+                    actions: [
+                      GestureDetector(
+                        onTap: () {
+                          recordingStarted ? stop() : start();
+                        },
+                        child: Icon(
+                          recordingStarted ? Icons.stop : Icons.mic,
+                          color: recordingStarted
+                              ? Colors.red.withOpacity(0.3)
+                              : StreamChatTheme.of(context)
+                                  .primaryIconTheme
+                                  .color,
+                        ),
+                      ),
+                      InkWell(
+                        child: Icon(
+                          !emojiShowing ? Icons.emoji_emotions : Icons.keyboard,
+                          //Icons.emoji_emotions,
+                          color: Colors.grey.shade600,
+                          size: 20.0,
+                        ),
+                        onTap: () {
+                          setState(() {
+                            emojiShowing = !emojiShowing;
+                          });
+                          emojiShowing
+                              ? FocusScope.of(context).unfocus()
+                              : FocusScope.of(context)
+                                  .requestFocus(myFocusNode);
+                        },
+                      ),
+                    ],
                   ),
                   Offstage(
                     offstage: !emojiShowing,
@@ -1068,30 +727,114 @@ class _ChatPageUserState extends State<ChatPageUser> {
             ),
           )
         : const Center(
-            child: CircularProgressIndicator(
-              color: AppColors.primary,
-            ),
+            child: CircularProgressIndicator(),
           );
   }
 
-  void _recordingWebFinishedCallback(AttachmentFile file) {
-    setState(() {
-      voiceNoteAttachement = Attachment(
-          type: 'voicenote',
-          file: file,
-          extraData: const {'mime_type': "video/webm"});
-    });
-    /*  sendVoiceNote(
-      Message(
-        command: "voicenote",
-        attachments: [
-          Attachment(
-              type: 'voicenote',
-              file: file,
-              extraData: const {'mime_type': "video/webm"})
-        ],
+  Widget _buildActionButton(
+      ac.Action action, Message messageWithChoicesAttachement) {
+    final actionIsCancel = action.value!.contains(";cancel");
+    final buttonColor = actionIsCancel ? Colors.white : AppColors.secndaryLight;
+    final textColor = actionIsCancel ? AppColors.secndaryLight : Colors.white;
+
+    final buttonText = Text(
+      action.text,
+      textAlign: TextAlign.center,
+      style: GoogleFonts.poppins(
+        fontWeight: FontWeight.w400,
+        fontSize: 14,
       ),
-    );*/
+    );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          foregroundColor: textColor,
+          backgroundColor: buttonColor,
+          shape: RoundedRectangleBorder(
+            side: const BorderSide(color: AppColors.secndaryLight),
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        onPressed: () =>
+            _onActionButtonPressed(action, messageWithChoicesAttachement),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 3.0),
+          child: Center(child: buttonText),
+        ),
+      ),
+    );
+  }
+
+// Helper method to handle button press
+  void _onActionButtonPressed(
+      ac.Action action, Message messageWithChoicesAttachement) {
+    String botflowId = messageWithChoicesAttachement
+        .attachments.first.extraData["botFlowId"] as String;
+    if (action.type == "form") {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return UserInfoDialog(
+            questionType: action.name,
+            question: messageWithChoicesAttachement.text ?? action.name,
+          );
+        },
+      ).then((value) {
+        if (value is String) {
+          context
+              .read<NavigatorProvider>()
+              .globalChannel!
+              .sendMessage(Message(text: value));
+        } else if (value is Attachment) {
+          context.read<NavigatorProvider>().globalChannel!.sendMessage(Message(
+                attachments: [value],
+              ));
+        } else {
+          context
+              .read<NavigatorProvider>()
+              .globalChannel!
+              .sendMessage(Message(text: cf.getTranslated("Done")));
+        }
+
+        ChatService.startBotFlow(
+            cid: context.read<NavigatorProvider>().globalChannel!.cid!,
+            language: cf.Config.languageCode!,
+            botflowId: botflowId,
+            nextNodeIndex: action.value!.contains(";")
+                ? action.value!.split(";")[1]
+                : action.value!);
+      });
+    } else {
+      context
+          .read<NavigatorProvider>()
+          .globalChannel!
+          .sendMessage(Message(text: action.text));
+      ChatService.startBotFlow(
+          cid: context.read<NavigatorProvider>().globalChannel!.cid!,
+          language: cf.Config.languageCode,
+          botflowId: botflowId,
+          nextNodeIndex: action.value!);
+    }
+  }
+
+  Future<void> stop() async {
+    final path = await _audioRecorder.stop();
+    /*fn.kIsWeb
+          ? _recordingWebFinishedCallback(path!)
+          :*/
+    _recordingFinishedCallback(path!);
+    setState(() {
+      recordingStarted = false;
+    });
+  }
+
+  _onBackspacePressed() {
+    chatMsgTextController
+      ..text = chatMsgTextController.text.characters.skipLast(1).toString()
+      ..selection = TextSelection.fromPosition(
+          TextPosition(offset: chatMsgTextController.text.length));
   }
 
   Future<void> start() async {
@@ -1107,15 +850,30 @@ class _ChatPageUserState extends State<ChatPageUser> {
     }
   }
 
-  Future<void> stop() async {
-    final path = await _audioRecorder.stop();
-    /*fn.kIsWeb
-          ? _recordingWebFinishedCallback(path!)
-          :*/
-    _recordingFinishedCallback(path!);
+  _onEmojiSelected(Emoji emoji) {
+    chatMsgTextController
+      ..text += emoji.emoji
+      ..selection = TextSelection.fromPosition(
+          TextPosition(offset: chatMsgTextController.text.length));
+  }
 
-    setState(() {
-      recordingStarted = false;
+  void _recordingFinishedCallback(String path) {
+    final uri = Uri.parse(path);
+    File file = File(uri.path);
+    file.length().then((fileSize) {
+      setState(() {
+        sendVoiceNote(Message(
+          attachments: [
+            Attachment(
+              type: 'voicenote',
+              file: AttachmentFile(
+                size: fileSize,
+                path: uri.path,
+              ),
+            )
+          ],
+        ));
+      });
     });
   }
 }

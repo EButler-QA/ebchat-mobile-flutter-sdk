@@ -8,7 +8,7 @@ class EbutlerProgress extends StatefulWidget {
 class _EbutlerProgress extends State<EbutlerProgress>
     with TickerProviderStateMixin {
   late AnimationController _controller;
-  Tween<double> _tween = Tween(begin: 0.75, end: 2);
+  final Tween<double> _tween = Tween(begin: 0.75, end: 2);
 
   @override
   void initState() {
