@@ -1,16 +1,74 @@
 import 'package:ebchat/ebchat.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:test/components/asyncButtonWidget.dart';
+import 'package:test/ebchat_provider.dart';
+import 'package:test/ebchat_screen.dart';
+import 'package:test/firebase_options.dart';
 
-import 'ebchat_screen.dart';
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
-void main() {
-  runApp(const MyApp());
+  await initNotifications();
+
+  final ebchatProvider = EbchatProvider();
+
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider<EbchatProvider>(
+        create: (context) => ebchatProvider,
+      ),
+    ],
+    child: const MyApp(),
+  ));
+}
+
+initNotifications() async {
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+  NotificationSettings settings = await messaging.requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: false,
+    sound: true,
+  );
+
+  FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+    print('Got a message whilst in the foreground!');
+    print('Message data: ${message.data}');
+    if (message.notification != null) {
+      print('Message also contained a notification: ${message.notification}');
+    }
+  });
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    print(message);
+    if (message.notification != null) {
+      print('Message also contained a notification: ${message.notification}');
+    }
+  });
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+}
+
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({
-    Key? key,
-  }) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return const MyHomePage();
@@ -19,34 +77,25 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
+
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  //CLIENT
-  String initalEbchatKey = "EBCHATKEY";
-  StreamChatClient? ebchatClient;
   @override
-  void didChangeDependencies() async {
-    connectEBchatClient(initalEbchatKey);
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+    context
+        .read<EbchatProvider>()
+        .setEbchatUser(User(id: "john", name: "jack", extraData: const {
+          //TODO: THIS FIELD IS REQUIRED
+          "email": "johnjack@ebchat.com",
+          //TODO: you can store your user extrats attribute
+          "phone": "9741111111",
+        }));
   }
 
-  Future<void> connectEBchatClient(
-    String? ebchatKey,
-  ) async {
-    if (ebchatClient != null) {
-      EBChatService.disposeEbchatClient();
-    }
-    ebchatClient = await EBChatService.getWebsocketClient(ebchatKey!);
-    setState(() {
-      ebchatClient;
-    });
-    return;
-  }
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -54,69 +103,46 @@ class _MyHomePageState extends State<MyHomePage> {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+      home: EBChatScreen(
+          key: ValueKey(context.read<EbchatProvider>().ebchatKey),
+          eButlerEBChatKey: context.read<EbchatProvider>().ebchatKey),
       builder: (context, child) {
         return Scaffold(
-          body: ebchatClient != null
+          body: context.watch<EbchatProvider>().ebchatClient != null &&
+                  context.watch<EbchatProvider>().isEBChatOpened
               ? StreamChat(
-                  client: ebchatClient!,
+                  client: context.read<EbchatProvider>().ebchatClient!,
                   streamChatThemeData: StreamChatThemeData(
                     messageListViewTheme: const StreamMessageListViewThemeData(
-                      backgroundColor: Color(0xFFF8F8F8),
+                      backgroundColor: Colors.white,
                     ),
-                    // channelListViewTheme: const StreamChannelListViewThemeData(
-                    //   backgroundColor: Color(0xFFF8F8F8),
-                    // ),
+                    channelHeaderTheme: const StreamChannelHeaderThemeData(
+                      color: Color(0xFFF8F8F8),
+                    ),
                   ),
-                  child: child,
-                )
-              : const Center(
-                  child: Text("Please double check you EBCHATKEY"),
-                ),
+                  child: child)
+              : buildButtons(context),
         );
       },
-      home: Builder(builder: (context) {
+    );
+  }
+
+  Widget buildButtons(BuildContext context) {
+    return Builder(
+      builder: (BuildContext innerContext) {
         return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: ElevatedButton(
-                  onPressed: () => connectEBchatClient(initalEbchatKey).then(
-                    (value) => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EbChatScreen(
-                          ebchatClient: ebchatClient,
-                          currentEbchatKey: initalEbchatKey,
-                        ),
-                      ),
-                    ),
-                  ),
-                  child: const SizedBox(
-                    height: 50,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.chat),
-                        SizedBox(
-                          width: 7,
-                        ),
-                        Text(
-                          "EBCHAT WIDGET",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 13,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ]);
-      }),
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            AsyncButtonWidget(
+                chatKey: context.read<EbchatProvider>().ebchatKey,
+                buttonText: "Your company"),
+            const SizedBox(height: 10),
+            const AsyncButtonWidget(
+                channelId: "thechannelId", buttonText: "Detect by channel"),
+          ],
+        );
+      },
     );
   }
 }

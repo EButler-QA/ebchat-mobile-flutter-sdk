@@ -5,31 +5,34 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
-class NavigatorProvider with ChangeNotifier {
+class EBchatProvider with ChangeNotifier {
   Channel? globalChannel;
   User? currentUser;
-  final ChatService chatSerivice = ChatService();
+  final ChatSerivice chatSerivice = ChatSerivice();
 
 //EBCHAT SAAS BACKEND
+
+  startBotFlow(Map<String, String> body, String ebchatkey) {
+    chatSerivice.startBotFlow(body, ebchatkey);
+  }
 
   ///GETSTREAM
   void setChannel(Channel? tmp, bool mounted) {
     globalChannel = tmp;
+    Config.globalChannel = globalChannel;
     if (mounted) notifyListeners();
   }
 
   void setCurrentUser(User? tmp, bool mounted) {
     currentUser = tmp;
-    //  if (mounted) notifyListeners();
+    // if (mounted) notifyListeners();
   }
 
-  Future<void> findAlfredChannel(
-    BuildContext context,
-  ) async {
-    final client = StreamChatCore.of(context).client;
-    final CompanyProvider companyProvider =
-        Provider.of<CompanyProvider>(context, listen: false);
-    final streamChatCore = StreamChatCore.of(context);
+  Future<void> findAlfredChannel(BuildContext context, bool mounted) async {
+    if (globalChannel != null) return;
+    final StreamChatCoreState streamChatCore = StreamChatCore.of(context);
+    final CompanyProvider companyProvider = context.read<CompanyProvider>();
+    final client = streamChatCore.client;
     List<Channel> channels = await client
         .queryChannels(
           filter: Filter.and(
@@ -46,7 +49,9 @@ class NavigatorProvider with ChangeNotifier {
         .first;
     if (channels.isEmpty) {
       await chatSerivice.createChannelWithAlfred(
-          streamChatCore.currentUser!.id, companyProvider.company!.ebchatkey!);
+        streamChatCore.currentUser!.id,
+        companyProvider.company!.ebchatkey!,
+      );
       channels = await client
           .queryChannels(
             filter: Filter.and(
@@ -61,14 +66,14 @@ class NavigatorProvider with ChangeNotifier {
             ),
           )
           .first;
-    }
-
-    if (channels.isNotEmpty) {
+    } else {
       globalChannel = channels.first;
       await globalChannel!.watch();
-      // notifyListeners();
+      /* if (mounted) {
+        notifyListeners();
+      }*/
     }
-    return;
+    Config.globalChannel = globalChannel;
   }
 
   void afterMidnight(String chID, String ebchatkey) {
@@ -76,14 +81,7 @@ class NavigatorProvider with ChangeNotifier {
   }
 
   Future<String> getStreamUserToken(String userID, String ebchatkey) async {
-    String token = await ChatService.getStreamUserToken(userID, ebchatkey);
+    String token = await ChatSerivice.getStreamUserToken(userID, ebchatkey);
     return token;
-  }
-
-  Future<void> logout() async {
-    if (globalChannel != null) {
-      globalChannel!.dispose();
-      setChannel(null, false);
-    }
   }
 }

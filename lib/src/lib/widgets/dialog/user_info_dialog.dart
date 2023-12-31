@@ -10,9 +10,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
 class UserInfoDialog extends StatefulWidget {
-  const UserInfoDialog(
-      {Key? key, required this.questionType, required this.question})
-      : super(key: key);
+  const UserInfoDialog({
+    Key? key,
+    required this.questionType,
+    required this.question,
+  }) : super(key: key);
   final String questionType;
   final String question;
 
@@ -41,6 +43,7 @@ class _SetvalueDialogState extends State<UserInfoDialog> {
   }
 
   chooseImage() async {
+    final NavigatorState navigator = Navigator.of(context);
     pickedFile = await ImagePicker().pickImage(
       source: ImageSource.gallery,
     );
@@ -74,7 +77,7 @@ class _SetvalueDialogState extends State<UserInfoDialog> {
         uploadState: const UploadState.preparing(),
         extraData: extraDataMap,
       );
-      Navigator.of(context).pop(attachment);
+      navigator.pop(attachment);
     }
   }
 
@@ -116,8 +119,8 @@ class _SetvalueDialogState extends State<UserInfoDialog> {
                 child: ElevatedButton(
                   onPressed: () => _addvalue(context),
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.white,
-                    onPrimary: AppColors.secndaryLight,
+                    foregroundColor: AppColors.secndaryLight,
+                    backgroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       side: const BorderSide(
                         color: AppColors.secndaryLight,
@@ -129,12 +132,14 @@ class _SetvalueDialogState extends State<UserInfoDialog> {
                     width: 350,
                     height: 40,
                     child: Center(
-                      child: Text("Submit",
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 16,
-                          )),
+                      child: Text(
+                        "Submit",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 16,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -146,138 +151,79 @@ class _SetvalueDialogState extends State<UserInfoDialog> {
         break;
       case "PickFile":
         child = Center(
-            child: Padding(
-          padding: const EdgeInsets.all(25.0),
-          child: Column(
-            children: [
-              Text(
-                widget.question,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(
-                  color: Colors.black,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 15,
+          child: Padding(
+            padding: const EdgeInsets.all(25.0),
+            child: Column(
+              children: [
+                Text(
+                  widget.question,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 15,
+                  ),
                 ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              ElevatedButton(
-                onPressed: () => chooseImage(),
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.white,
-                  onPrimary: AppColors.secndaryLight,
-                  shape: RoundedRectangleBorder(
-                    side: const BorderSide(
-                      color: AppColors.secndaryLight,
+                const SizedBox(
+                  height: 20,
+                ),
+                ElevatedButton(
+                  onPressed: () => chooseImage(),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: AppColors.secndaryLight,
+                    backgroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      side: const BorderSide(
+                        color: AppColors.secndaryLight,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.upload,
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(getTranslated("Upload file"))
+                      ],
+                    ),
                   ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.upload,
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Text(getTranslated("Upload file"))
-                    ],
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ));
+        );
 
         break;
 
       ///location
       default:
         child = Center(
-            child: Padding(
-          padding: const EdgeInsets.all(25.0),
-          child: loading
-              ? const CircularProgressIndicator(
-                  color: AppColors.secondary,
-                )
-              : Column(
-                  children: [
-                    Text(
-                      widget.question,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.poppins(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 15,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        setState(() {
-                          loading = true;
-                        });
-                        lcp.Location location = lcp.Location();
-
-                        bool _serviceEnabled;
-                        lcp.PermissionStatus _permissionGranted;
-                        lcp.LocationData _locationData;
-
-                        _serviceEnabled = await location.serviceEnabled();
-                        if (!_serviceEnabled) {
-                          _serviceEnabled = await location.requestService();
-                          if (!_serviceEnabled) {
-                            return;
-                          }
-                        }
-
-                        _permissionGranted = await location.hasPermission();
-                        if (_permissionGranted == lcp.PermissionStatus.denied) {
-                          _permissionGranted =
-                              await location.requestPermission();
-                          if (_permissionGranted !=
-                              lcp.PermissionStatus.granted) {
-                            return;
-                          }
-                        }
-
-                        _locationData = await location.getLocation();
-
-                        Navigator.of(context).pop(
-                            "http://maps.google.com/maps?q=${_locationData.latitude},${_locationData.longitude}");
-                      },
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.white,
-                        onPrimary: AppColors.secndaryLight,
-                        shape: RoundedRectangleBorder(
-                          side: const BorderSide(
-                            color: AppColors.secndaryLight,
-                          ),
-                          borderRadius: BorderRadius.circular(10),
+          child: Padding(
+            padding: const EdgeInsets.all(25.0),
+            child: loading
+                ? const CircularProgressIndicator(
+                    color: AppColors.secondary,
+                  )
+                : Column(
+                    children: [
+                      Text(
+                        widget.question,
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.poppins(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 15,
                         ),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.location_on,
-                            ),
-                            const SizedBox(
-                              width: 5,
-                            ),
-                            Text(getTranslated("Send your current location"))
-                          ],
-                        ),
+                      const SizedBox(
+                        height: 20,
                       ),
-                    ),
-                    if (Config.azureMapsApiKey != null)
                       ElevatedButton(
                         onPressed: () async {
                           setState(() {
@@ -285,49 +231,41 @@ class _SetvalueDialogState extends State<UserInfoDialog> {
                           });
                           lcp.Location location = lcp.Location();
 
-                          bool _serviceEnabled;
-                          lcp.PermissionStatus _permissionGranted;
-                          lcp.LocationData _locationData;
+                          bool serviceEnabled;
+                          lcp.PermissionStatus permissionGranted;
+                          lcp.LocationData locationData;
 
-                          _serviceEnabled = await location.serviceEnabled();
-                          if (!_serviceEnabled) {
-                            _serviceEnabled = await location.requestService();
-                            if (!_serviceEnabled) {
+                          final NavigatorState navigator =
+                              Navigator.of(context);
+
+                          serviceEnabled = await location.serviceEnabled();
+                          if (!serviceEnabled) {
+                            serviceEnabled = await location.requestService();
+                            if (!serviceEnabled) {
                               return;
                             }
                           }
 
-                          _permissionGranted = await location.hasPermission();
-                          if (_permissionGranted ==
+                          permissionGranted = await location.hasPermission();
+                          if (permissionGranted ==
                               lcp.PermissionStatus.denied) {
-                            _permissionGranted =
+                            permissionGranted =
                                 await location.requestPermission();
-                            if (_permissionGranted !=
+                            if (permissionGranted !=
                                 lcp.PermissionStatus.granted) {
                               return;
                             }
                           }
-                          _locationData = await location.getLocation();
-                          LatLng currentPositon = LatLng(
-                              _locationData.latitude!,
-                              _locationData.longitude!);
 
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    EbutlerMap(currentPositon)),
-                          ).then((value) {
-                            if (value != null) {
-                              LatLng selectedPos = value as LatLng;
-                              Navigator.of(context).pop(
-                                  "http://maps.google.com/maps?q=${selectedPos.latitude},${selectedPos.longitude}");
-                            }
-                          });
+                          locationData = await location.getLocation();
+
+                          navigator.pop(
+                            "http://maps.google.com/maps?q=${locationData.latitude},${locationData.longitude}",
+                          );
                         },
                         style: ElevatedButton.styleFrom(
-                          primary: Colors.white,
-                          onPrimary: AppColors.secndaryLight,
+                          foregroundColor: AppColors.secndaryLight,
+                          backgroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             side: const BorderSide(
                               color: AppColors.secndaryLight,
@@ -340,24 +278,105 @@ class _SetvalueDialogState extends State<UserInfoDialog> {
                           child: Row(
                             children: [
                               const Icon(
-                                Icons.map,
+                                Icons.location_on,
                               ),
                               const SizedBox(
                                 width: 5,
                               ),
-                              Text(getTranslated("Send location"))
+                              Text(getTranslated("Send your current location"))
                             ],
                           ),
                         ),
                       ),
-                  ],
-                ),
-        ));
+                      if (Config.azureMapsApiKey != null)
+                        ElevatedButton(
+                          onPressed: () async {
+                            final NavigatorState navigator =
+                                Navigator.of(context);
+                            setState(() {
+                              loading = true;
+                            });
+                            lcp.Location location = lcp.Location();
+
+                            bool serviceEnabled;
+                            lcp.PermissionStatus permissionGranted;
+                            lcp.LocationData locationData;
+
+                            serviceEnabled = await location.serviceEnabled();
+                            if (!serviceEnabled) {
+                              serviceEnabled = await location.requestService();
+                              if (!serviceEnabled) {
+                                return;
+                              }
+                            }
+
+                            permissionGranted = await location.hasPermission();
+                            if (permissionGranted ==
+                                lcp.PermissionStatus.denied) {
+                              permissionGranted =
+                                  await location.requestPermission();
+                              if (permissionGranted !=
+                                  lcp.PermissionStatus.granted) {
+                                return;
+                              }
+                            }
+                            locationData = await location.getLocation();
+                            LatLng currentPositon = LatLng(
+                              locationData.latitude!,
+                              locationData.longitude!,
+                            );
+
+                            navigator
+                                .push(
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    EbutlerMap(currentPositon),
+                              ),
+                            )
+                                .then((value) {
+                              if (value != null) {
+                                LatLng selectedPos = value as LatLng;
+                                Navigator.of(context).pop(
+                                  "http://maps.google.com/maps?q=${selectedPos.latitude},${selectedPos.longitude}",
+                                );
+                              }
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: AppColors.secndaryLight,
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              side: const BorderSide(
+                                color: AppColors.secndaryLight,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.map,
+                                ),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                Text(getTranslated("Send location"))
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+          ),
+        );
     }
     return Dialog(
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10.0))),
-        child:
-            SizedBox(height: 300, child: SingleChildScrollView(child: child)));
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+      ),
+      child: SizedBox(height: 300, child: SingleChildScrollView(child: child)),
+    );
   }
 }

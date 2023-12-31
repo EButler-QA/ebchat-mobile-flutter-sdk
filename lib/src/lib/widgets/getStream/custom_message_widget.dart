@@ -3,11 +3,11 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_portal/flutter_portal.dart';
-import 'package:stream_chat_flutter/src/message_actions_modal/message_actions_modal.dart';
-import 'package:stream_chat_flutter/src/message_input/quoted_message_widget.dart';
-import 'package:stream_chat_flutter/src/message_widget/reactions/message_reactions_modal.dart';
-import 'package:stream_chat_flutter/src/message_widget/reactions/reaction_bubble.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
+import 'package:stream_chat_flutter/src/message_input/quoted_message_widget.dart';
+import 'package:stream_chat_flutter/src/message_widget/reactions/reaction_bubble.dart';
+import 'package:stream_chat_flutter/src/message_actions_modal/message_actions_modal.dart';
+import 'package:stream_chat_flutter/src/message_widget/reactions/message_reactions_modal.dart';
 
 /// Widget builder for building attachments
 typedef AttachmentBuilder = Widget Function(

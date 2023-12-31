@@ -7,6 +7,6 @@ class CompanyProvider extends ChangeNotifier {
 
   void setCompany(bool mounted) {
     company = Config.currentCompany;
-    if (mounted) notifyListeners();
+    // if (mounted) notifyListeners();
   }
 }

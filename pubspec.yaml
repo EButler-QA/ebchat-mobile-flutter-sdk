@@ -1,6 +1,6 @@
 name: ebchat
 description: EBchat widget
-version: 3.0.0+1
+version: 4.0.0+1
 homepage: https://ebchat-saas.e-butler.com/
 repository: https://github.com/EButler-QA/ebchat-mobile-flutter-sdk
 issue_tracker: https://github.com/EButler-QA/ebchat-mobile-flutter-sdk/issues
@@ -14,7 +14,6 @@ dependencies:
   chewie: ^1.2.0
   collection: ^1.15.0
   diacritic: ^0.1.3
-  dio: ^5.3.3
   ezanimation: ^0.6.0
   file_picker: ^5.0.0
   flutter_markdown: ^0.6.1
@@ -22,9 +21,9 @@ dependencies:
   flutter_slidable: ^3.0.0
   flutter_svg: ^2.0.7
   http_parser: ^4.0.0
-  image_gallery_saver: ^2.0.3
-  image_picker: ^1.0.4
-  lottie: ^2.6.0
+  image_gallery_saver: ^2.0.2
+  image_picker: ^1.0.2
+  lottie: ^2.4.0
   meta: ^1.3.0
   path_provider: ^2.0.1
   photo_view: ^0.14.0
@@ -38,15 +37,15 @@ dependencies:
   video_thumbnail: ^0.5.0
   visibility_detector: ^0.4.0+2
   cached_network_image: ^3.1.0
-  google_fonts: ^6.1.0
+  google_fonts: ^4.0.4
   jiffy: ^6.2.1
-  logger: ^2.0.2+1
+  logger: ^1.1.0
   stream_chat_flutter_core: ^6.10.0
   cupertino_icons: ^1.0.2
   flutter_launcher_icons: ^0.13.1
   stream_chat: ^6.9.0
-  stream_chat_flutter: ^6.11.0
-  provider: ^6.0.3
+  stream_chat_flutter: ^6.12.0
+  provider: ^6.0.5
   emoji_picker_flutter: ^1.0.8
   record: ^4.4.0
   just_audio: ^0.9.18
@@ -54,17 +53,17 @@ dependencies:
   flutter_map: ^5.0.0
   latlong2: ^0.9.0
   sound_mode: ^2.0.2
-  photo_manager: ^2.0.0
   flutter:
     sdk: flutter
   video_compress: ^3.1.1
   http: ^1.1.0
-  desktop_drop: ^0.4.4
+  emojis: ^0.9.9
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:record/record.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
@@ -12,7 +14,7 @@ class RecordButton extends StatefulWidget {
   final dynamic recordingFinishedCallback;
   final VoidCallback startRecording;
   @override
-  _RecordButtonState createState() => _RecordButtonState();
+  State<RecordButton> createState() => _RecordButtonState();
 }
 
 class _RecordButtonState extends State<RecordButton> {
@@ -31,7 +33,7 @@ class _RecordButtonState extends State<RecordButton> {
         });
       }
     } catch (e) {
-      print(e);
+      log("Error", error: e);
     }
   }
 

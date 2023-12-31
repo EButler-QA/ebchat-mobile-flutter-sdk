@@ -1,5 +1,6 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:logger/logger.dart' as log;
 
 var logger = log.Logger();
@@ -16,7 +17,8 @@ extension StreamChatContext on BuildContext {
 
   bool get isDarkMode {
     if (themeMode == ThemeMode.system) {
-      final brightness = SchedulerBinding.instance.window.platformBrightness;
+      final brightness = PlatformDispatcher.instance.platformBrightness;
+      // final brightness = SchedulerBinding.instance.window.platformBrightness;
       return brightness == Brightness.dark;
     } else {
       return themeMode == ThemeMode.dark;

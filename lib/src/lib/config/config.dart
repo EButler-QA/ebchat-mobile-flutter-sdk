@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:ebchat/src/lib/models/Company.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:stream_chat/src/client/channel.dart';
 
 Map<String, dynamic> mappedTextStrings = {};
 String getTranslated(String key) {
@@ -24,13 +24,14 @@ Future<void> loadTextString() async {
 class Config {
   static String alfredId = "alfred";
   static const platform = MethodChannel("EbutlerChat/user");
-  static String virtual_intrest = "";
+  static String virtualIntrest = "";
   static TextDirection textDirection = TextDirection.ltr;
   static String languageCode = "en";
-  static String ebchat_saas_api_url =
+  static String ebchatSassApiUrl =
       "https://ebchat-saas.e-butler.com/ebchat_api/";
   static String? azureMapsApiKey;
   static Company? currentCompany;
+  static Channel? globalChannel;
 
   static void setConfig(bool arabicApp, String? azurMap) {
     if (arabicApp) {

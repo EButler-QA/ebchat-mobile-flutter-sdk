@@ -5,8 +5,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 class EbutlerMap extends StatefulWidget {
-  EbutlerMap(this.initalPostion, {Key? key}) : super(key: key);
-  LatLng initalPostion;
+  const EbutlerMap(this.initalPostion, {Key? key}) : super(key: key);
+  final LatLng initalPostion;
   @override
   State<EbutlerMap> createState() => _EbutlerMapState();
 }
@@ -59,7 +59,7 @@ class _EbutlerMapState extends State<EbutlerMap> {
                   markers;
                 });
               }
-            }),
+            },),
         children: [
           TileLayer(
             urlTemplate:

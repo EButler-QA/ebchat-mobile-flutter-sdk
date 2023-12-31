@@ -10,24 +10,25 @@ import 'package:ebchat/src/lib/widgets/getStream/custom_message_listview.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
 class ClosedChannelPage extends StatelessWidget {
-  ClosedChannelPage({
+  const ClosedChannelPage({
     key,
     required this.channel,
   }) : super(key: key);
-  Channel? channel;
+  final Channel? channel;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
       appBar: AppBar(
         leading: IconButton(
-            icon: const Icon(
-              Icons.arrow_back_ios,
-              color: Colors.black,
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-            }),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: Colors.black,
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
       ),
       body: Column(
         children: <Widget>[
@@ -45,10 +46,11 @@ class ClosedChannelPage extends StatelessWidget {
                           return const AudioLoadingMessage();
                         }
                         return AudioPlayerMessage(
-                            source: AudioSource.uri(Uri.parse(url)),
-                            fileSize: attachments.first.mimeType == "video/webm"
-                                ? attachments.first.fileSize!
-                                : 0);
+                          source: AudioSource.uri(Uri.parse(url)),
+                          fileSize: attachments.first.mimeType == "video/webm"
+                              ? attachments.first.fileSize!
+                              : 0,
+                        );
                       }
                     },
                     userAvatarBuilder: (p0, p1) {
@@ -56,7 +58,9 @@ class ClosedChannelPage extends StatelessWidget {
                         return CircleAvatar(
                           radius: 18,
                           backgroundImage: const AssetImage(
-                              package: "ebchat", "assets/alfred.png"),
+                            package: "ebchat",
+                            "assets/alfred.png",
+                          ),
                           backgroundColor: Theme.of(context).cardColor,
                         );
                       }
@@ -94,9 +98,10 @@ class ClosedChannelPage extends StatelessWidget {
                     getTranslated("this channel is closed"),
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 13,
-                        color: const Color(0xFF5A5A5A)),
+                      fontWeight: FontWeight.w500,
+                      fontSize: 13,
+                      color: const Color(0xFF5A5A5A),
+                    ),
                   ),
                   const SizedBox(
                     height: 23,
@@ -104,26 +109,29 @@ class ClosedChannelPage extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).pop();
+                      Navigator.of(context).pop();
                     },
                     style: ElevatedButton.styleFrom(
-                      primary: AppColors.primary,
-                      onPrimary: Colors.white,
+                      foregroundColor: Colors.white,
+                      backgroundColor: AppColors.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                     child: SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: Center(
-                          child: Text(
-                            getTranslated("Start conversation"),
-                            style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 16,
-                                color: Colors.white),
+                      width: double.infinity,
+                      height: 50,
+                      child: Center(
+                        child: Text(
+                          getTranslated("Start conversation"),
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                            color: Colors.white,
                           ),
-                        )),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),

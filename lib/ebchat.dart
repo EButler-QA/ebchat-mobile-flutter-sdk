@@ -2,5 +2,5 @@ library ebchat;
 
 export 'package:ebchat/src/lib/services/stream_services.dart';
 export 'package:stream_chat_flutter/stream_chat_flutter.dart';
-export 'src/lib/services/chat_services.dart';
 export 'src/ebchat_widget.dart';
+export 'src/lib/services/chat_services.dart';

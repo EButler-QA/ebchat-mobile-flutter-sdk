@@ -242,7 +242,7 @@ packages:
     source: hosted
     version: "0.7.8"
   desktop_drop:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: desktop_drop
       sha256: d55a010fe46c8e8fcff4ea4b451a9ff84a162217bdb3b2a0aa1479776205e15d
@@ -258,7 +258,7 @@ packages:
     source: hosted
     version: "0.1.4"
   dio:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: dio
       sha256: "417e2a6f9d83ab396ec38ff4ea5da6c254da71e4db765ad737a42af6930140b7"
@@ -273,6 +273,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.6.1"
+  emojis:
+    dependency: "direct main"
+    description:
+      name: emojis
+      sha256: "2e4d847c3f1e2670f30dc355909ce6fa7808b4e626c34a4dd503a360995a38bf"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.9"
   equatable:
     dependency: transitive
     description:
@@ -484,10 +492,10 @@ packages:
     dependency: "direct main"
     description:
       name: google_fonts
-      sha256: f0b8d115a13ecf827013ec9fc883390ccc0e87a96ed5347a3114cac177ef18e8
+      sha256: "2776c66b3e97c6cdd58d1bd3281548b074b64f1fd5c8f82391f7456e38849567"
       url: "https://pub.dev"
     source: hosted
-    version: "6.1.0"
+    version: "4.0.5"
   html:
     dependency: transitive
     description:
@@ -708,10 +716,10 @@ packages:
     dependency: "direct main"
     description:
       name: logger
-      sha256: "6bbb9d6f7056729537a4309bda2e74e18e5d9f14302489cc1e93f33b3fe32cac"
+      sha256: "7ad7215c15420a102ec687bb320a7312afd449bac63bfb1c60d9787c27b9767f"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.2+1"
+    version: "1.4.0"
   logging:
     dependency: transitive
     description:
@@ -889,7 +897,7 @@ packages:
     source: hosted
     version: "5.4.0"
   photo_manager:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: photo_manager
       sha256: b2d81bd197323697d1b335e2e04cea2f67e11624ced77cfd02917a10afaeba73
@@ -1161,26 +1169,26 @@ packages:
     dependency: "direct main"
     description:
       name: stream_chat
-      sha256: b5c6301786370dee4469857555f0b162b6e065734cd3d722e86530f3b4bb9b81
+      sha256: "62117b66395ec60d9fdf71a137ea916d3a5536347fff3eefee47e09933334588"
       url: "https://pub.dev"
     source: hosted
-    version: "6.9.0"
+    version: "6.10.0"
   stream_chat_flutter:
     dependency: "direct main"
     description:
       name: stream_chat_flutter
-      sha256: ce857b48ceb2c5738bfc9553b9434ce7c72528f57d19de579419bc61844a7b54
+      sha256: "0286ef445645d7f6af74bdc2a5dd7664269336dd1d0f4b1d2b84c58aab8cbf77"
       url: "https://pub.dev"
     source: hosted
-    version: "6.11.0"
+    version: "6.12.0"
   stream_chat_flutter_core:
     dependency: "direct main"
     description:
       name: stream_chat_flutter_core
-      sha256: "7e2193bd93425e2439828b1781eaba1c57f7127e11abfe8a1eb4317f4902bd3f"
+      sha256: af11103151644002a42c3338d828b2dc54036b390c15ed7cefb1a84be565067e
       url: "https://pub.dev"
     source: hosted
-    version: "6.10.0"
+    version: "6.11.0"
   string_scanner:
     dependency: transitive
     description:

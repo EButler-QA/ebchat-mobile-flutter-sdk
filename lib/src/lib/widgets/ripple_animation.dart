@@ -5,7 +5,7 @@ class RipplesAnimation extends StatefulWidget {
     Key? key,
   }) : super(key: key);
   @override
-  _RipplesAnimationState createState() => _RipplesAnimationState();
+  State<RipplesAnimation> createState() => _RipplesAnimationState();
 }
 
 class _RipplesAnimationState extends State<RipplesAnimation>
@@ -46,54 +46,63 @@ class _RipplesAnimationState extends State<RipplesAnimation>
       alignment: AlignmentDirectional.center,
       children: [
         FadeTransition(
-            opacity: _controller
-              ..drive(CurveTween(
+          opacity: _controller
+            ..drive(
+              CurveTween(
                 curve: Curves.easeInOut,
-              )),
-            child: Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  width: 2,
-                  color: Colors.white.withOpacity(0.4),
-                  style: BorderStyle.solid,
-                ),
               ),
-            )),
+            ),
+          child: Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                width: 2,
+                color: Colors.white.withOpacity(0.4),
+                style: BorderStyle.solid,
+              ),
+            ),
+          ),
+        ),
         FadeTransition(
-            opacity: _controller1.drive(CurveTween(
+          opacity: _controller1.drive(
+            CurveTween(
               curve: Curves.easeInOut,
-            )),
-            child: Container(
-              width: 90,
-              height: 90,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  width: 2,
-                  color: Colors.white.withOpacity(0.4),
-                  style: BorderStyle.solid,
-                ),
+            ),
+          ),
+          child: Container(
+            width: 90,
+            height: 90,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                width: 2,
+                color: Colors.white.withOpacity(0.4),
+                style: BorderStyle.solid,
               ),
-            )),
+            ),
+          ),
+        ),
         FadeTransition(
-            opacity: _controller2.drive(CurveTween(
+          opacity: _controller2.drive(
+            CurveTween(
               curve: Curves.easeInOut,
-            )),
-            child: Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  width: 2,
-                  color: Colors.white.withOpacity(0.4),
-                  style: BorderStyle.solid,
-                ),
+            ),
+          ),
+          child: Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                width: 2,
+                color: Colors.white.withOpacity(0.4),
+                style: BorderStyle.solid,
               ),
-            )),
+            ),
+          ),
+        ),
       ],
     );
   }

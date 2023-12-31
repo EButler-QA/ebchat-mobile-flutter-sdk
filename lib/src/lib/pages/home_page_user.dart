@@ -2,17 +2,15 @@ import 'package:ebchat/src/lib/providers/navigator_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ebchat/src/lib/Theme/my_theme.dart';
 import 'package:ebchat/src/lib/config/config.dart';
-import 'package:ebchat/src/lib/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
-import '../widgets/ripple_animation.dart';
 import 'closed_channels_list_page.dart';
 
 class HomeScreenUser extends StatefulWidget {
-  HomeScreenUser(this.navigate, {Key? key}) : super(key: key);
+  const HomeScreenUser(this.navigate, {Key? key}) : super(key: key);
 
-  void Function(int index) navigate;
+  final void Function(int index) navigate;
 
   @override
   State<HomeScreenUser> createState() => _HomeScreenUserState();
@@ -67,39 +65,38 @@ class _HomeScreenUserState extends State<HomeScreenUser> {
                     Text(
                       "${getTranslated("Hello")}${StreamChatCore.of(context).currentUser!.name.length < 15 ? " ${StreamChatCore.of(context).currentUser!.name}" : ""} !",
                       style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 24,
-                          color: Colors.white),
+                        fontWeight: FontWeight.w500,
+                        fontSize: 24,
+                        color: Colors.white,
+                      ),
                     ),
                     const SizedBox(
                       height: 10,
                     ),
-                    Provider.of<NavigatorProvider>(context).globalChannel !=
-                            null
+                    context.watch<EBchatProvider>().globalChannel != null
                         ? StreamChannel(
-                            channel: Provider.of<NavigatorProvider>(context,
-                                    listen: false)
-                                .globalChannel!,
+                            channel:
+                                context.read<EBchatProvider>().globalChannel!,
                             child: ElevatedButton(
                               onPressed: () async {
                                 widget.navigate(0);
                               },
                               style: ElevatedButton.styleFrom(
-                                primary: Colors.white,
-                                onPrimary: AppColors.primary,
+                                foregroundColor: AppColors.primary,
+                                backgroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
                               child: SizedBox(
-                                  width: double.infinity,
-                                  height: 55,
-                                  child: Center(
-                                      child: Row(
+                                width: double.infinity,
+                                height: 55,
+                                child: Center(
+                                  child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Provider.of<NavigatorProvider>(context,
-                                                      listen: false)
+                                      context
+                                                  .read<EBchatProvider>()
                                                   .globalChannel
                                                   ?.state
                                                   ?.messages
@@ -107,11 +104,13 @@ class _HomeScreenUserState extends State<HomeScreenUser> {
                                               1
                                           ? Text(
                                               getTranslated(
-                                                  "Start conversation"),
+                                                "Start conversation",
+                                              ),
                                               style: GoogleFonts.poppins(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 15,
-                                                  color: AppColors.primary),
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 15,
+                                                color: AppColors.primary,
+                                              ),
                                             )
                                           : Row(
                                               mainAxisAlignment:
@@ -126,18 +125,18 @@ class _HomeScreenUserState extends State<HomeScreenUser> {
                                                 ),
                                                 Text(
                                                   getTranslated(
-                                                      "Continue Conversation"),
+                                                    "Continue Conversation",
+                                                  ),
                                                   style: GoogleFonts.poppins(
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      fontSize: 15,
-                                                      color: AppColors.primary),
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 15,
+                                                    color: AppColors.primary,
+                                                  ),
                                                 ),
                                               ],
                                             ),
-                                      if (Provider.of<NavigatorProvider>(
-                                                  context,
-                                                  listen: false)
+                                      if (context
+                                              .read<EBchatProvider>()
                                               .globalChannel!
                                               .state!
                                               .unreadCount >
@@ -149,18 +148,22 @@ class _HomeScreenUserState extends State<HomeScreenUser> {
                                             child: Padding(
                                               padding: const EdgeInsets.all(3),
                                               child: Text(
-                                                '${Provider.of<NavigatorProvider>(context, listen: false).globalChannel!.state!.unreadCount}',
+                                                '${context.read<EBchatProvider>().globalChannel!.state!.unreadCount}',
                                                 style: const TextStyle(
-                                                    fontSize: 15,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.white),
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
                                               ),
                                             ),
                                           ),
                                         ),
                                     ],
-                                  ))),
-                            ))
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
                         : const Center(
                             child: CircularProgressIndicator(
                               color: Colors.white,
@@ -170,32 +173,34 @@ class _HomeScreenUserState extends State<HomeScreenUser> {
                       height: 10,
                     ),
                     TextButton(
-                        onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ClosedChannelsListPages()),
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ClosedChannelsListPages(),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.access_time,
+                            color: Color(0xFFDBDBDB),
+                            size: 20,
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            getTranslated("See previous messages"),
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: const Color(0xFFDBDBDB),
+                              fontWeight: FontWeight.w400,
                             ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.access_time,
-                              color: Color(0xFFDBDBDB),
-                              size: 20,
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              getTranslated("See previous messages"),
-                              style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  color: const Color(0xFFDBDBDB),
-                                  fontWeight: FontWeight.w400),
-                            )
-                          ],
-                        )),
+                          )
+                        ],
+                      ),
+                    ),
                     const SizedBox(
                       height: 10,
                     ),

@@ -3,7 +3,8 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image/cached_network_image.dart'
+    hide ErrorListener;
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,7 +19,9 @@ import 'package:stream_chat_flutter/src/message_input/quoted_message_widget.dart
 import 'package:stream_chat_flutter/src/message_input/quoting_message_top_area.dart';
 import 'package:stream_chat_flutter/src/message_input/simple_safe_area.dart';
 import 'package:stream_chat_flutter/src/message_input/tld.dart';
+import 'package:stream_chat_flutter/src/video/video_thumbnail_image.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
+
 import 'package:video_compress/video_compress.dart';
 
 export 'package:video_compress/video_compress.dart' show VideoQuality;
@@ -150,6 +153,7 @@ class StreamCustomMessageInput extends StatefulWidget {
     this.ogPreviewFilter = _defaultOgPreviewFilter,
     this.hintGetter = _defaultHintGetter,
     this.contentInsertionConfiguration,
+    this.initialMessage,
   });
 
   /// The predicate used to send a message on desktop/web
@@ -319,7 +323,7 @@ class StreamCustomMessageInput extends StatefulWidget {
 
   /// Returns the hint text for the message input.
   final HintGetter hintGetter;
-
+  final String? initialMessage;
   /// {@macro flutter.widgets.editableText.contentInsertionConfiguration}
   final ContentInsertionConfiguration? contentInsertionConfiguration;
 
@@ -429,6 +433,15 @@ class StreamCustomMessageInputState extends State<StreamCustomMessageInput>
       _initialiseEffectiveController();
     }
     _effectiveFocusNode.addListener(_focusNodeListener);
+
+    Future.delayed(Duration.zero,() {
+      if(widget.initialMessage != null){
+        setState(() {
+          _effectiveController.text = widget.initialMessage.toString();
+        });
+        sendMessage();
+      }
+    },);
   }
 
   @override

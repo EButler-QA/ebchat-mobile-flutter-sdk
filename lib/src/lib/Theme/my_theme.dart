@@ -53,11 +53,9 @@ class AppTheme {
   ThemeData get light => ThemeData(
         brightness: Brightness.light,
         primaryColor: Colors.white,
-        colorScheme: lightBase.colorScheme,
         visualDensity: visualDensity,
         textTheme:
             GoogleFonts.mulishTextTheme().apply(bodyColor: AppColors.textDark),
-        backgroundColor: _LightColors.background,
         appBarTheme: lightBase.appBarTheme.copyWith(
           iconTheme: lightBase.iconTheme,
           backgroundColor: Colors.transparent,
@@ -79,20 +77,18 @@ class AppTheme {
         ),
         cardColor: _LightColors.card,
         primaryTextTheme: const TextTheme(
-          headline6: TextStyle(color: AppColors.textDark),
+          titleLarge: TextStyle(color: AppColors.textDark),
         ),
-        iconTheme: const IconThemeData(color: AppColors.iconDark),
+        iconTheme: const IconThemeData(color: AppColors.iconDark), colorScheme: lightBase.colorScheme.copyWith(background: _LightColors.background),
       );
 
   /// Dark theme and its settings.
   ThemeData get dark => ThemeData(
         brightness: Brightness.dark,
         primaryColor: Colors.black,
-        colorScheme: darkBase.colorScheme,
         visualDensity: visualDensity,
         textTheme:
             GoogleFonts.interTextTheme().apply(bodyColor: AppColors.textLigth),
-        backgroundColor: _DarkColors.background,
         appBarTheme: darkBase.appBarTheme.copyWith(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -112,8 +108,8 @@ class AppTheme {
         ),
         cardColor: _DarkColors.card,
         primaryTextTheme: const TextTheme(
-          headline6: TextStyle(color: AppColors.textLigth),
+          titleLarge: TextStyle(color: AppColors.textLigth),
         ),
-        iconTheme: const IconThemeData(color: AppColors.iconLight),
+        iconTheme: const IconThemeData(color: AppColors.iconLight), colorScheme: darkBase.colorScheme.copyWith(background: _DarkColors.background),
       );
 }

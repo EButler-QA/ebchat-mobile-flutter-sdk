@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:ebchat/ebchat.dart';
 import 'package:ebchat/src/lib/components/ebutler_progress.dart';
 import 'package:ebchat/src/lib/config/config.dart';
 import 'package:ebchat/src/lib/pages/chat_page_user.dart';
@@ -11,10 +12,21 @@ import 'package:provider/provider.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
 class SplashScreen extends StatefulWidget {
-  static Route get route => MaterialPageRoute(
-        builder: (context) => const SplashScreen(),
+  Route get route => MaterialPageRoute(
+        builder: (context) => SplashScreen(
+            companyLogo: companyLogo,
+            initialMessage: initialMessage,
+            ebchatKey: ebchatKey),
       );
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen(
+      {Key? key,
+      required this.ebchatKey,
+      required this.companyLogo,
+      required this.initialMessage})
+      : super(key: key);
+  final String ebchatKey;
+  final String companyLogo;
+  final String? initialMessage;
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -28,23 +40,46 @@ class _SplashScreenState extends State<SplashScreen> {
   bool loading = false;
   late StreamChatClient client;
   StreamSubscription<bool>? subscription;
-  final ChatService chatSerivice = ChatService();
+  final ChatSerivice chatSerivice = ChatSerivice();
+
+  Future<void> logout() async {
+    final EBchatProvider eBchatProvider = context.read<EBchatProvider>();
+    final StreamChatCoreState streamChatCore = StreamChatCore.of(context);
+    if (eBchatProvider.globalChannel != null) {
+      eBchatProvider.globalChannel!.dispose();
+      eBchatProvider.setChannel(null, mounted);
+    }
+
+    await streamChatCore.client.disconnectUser();
+    streamChatCore.dispose();
+  }
+
+  @override
+  void dispose() {
+    subscription?.cancel();
+    // any other disposing actions
+    super.dispose();
+  }
 
   StreamSubscription<bool> listenDataFreez() {
-    return Provider.of<NavigatorProvider>(context, listen: false)
+    return context
+        .read<EBchatProvider>()
         .globalChannel!
         .frozenStream
         .listen((data) async {
       if (data) {
-        setState(() {
-          loading = true;
-        });
+        if (mounted) {
+          setState(() {
+            loading = true;
+          });
+        }
 
         initalIndex = 1;
         selectedIndex = 1;
-        Config.virtual_intrest = "";
-        await Provider.of<NavigatorProvider>(context, listen: false)
-            .findAlfredChannel(context);
+        Config.virtualIntrest = "";
+        await context
+            .read<EBchatProvider>()
+            .findAlfredChannel(context, mounted);
         subscription!.cancel();
         subscription = null;
 
@@ -58,54 +93,42 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
-    client = StreamChatCore.of(context).client;
     super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
+    client = StreamChatCore.of(context).client;
     initApp();
-    super.didChangeDependencies();
   }
 
   void initApp() async {
-    final client = StreamChatCore.of(context).client;
-    NavigatorProvider eBchatProvider =
-        Provider.of<NavigatorProvider>(context, listen: false);
-    if (StreamChatCore.of(context).currentUser == null) {
+    final StreamChatCoreState streamChatCore = StreamChatCore.of(context);
+    final EBchatProvider eBchatProvider = context.read<EBchatProvider>();
+    final client = streamChatCore.client;
+
+    if (streamChatCore.currentUser == null) {
       loading = true;
-
-      await Future.delayed(const Duration(seconds: 1));
-
-      if (client.wsConnectionStatus == ConnectionStatus.disconnected) {
-        await client
-            .connectUserWithProvider(
-                eBchatProvider.currentUser!,
-                (_) => eBchatProvider.getStreamUserToken(
-                    eBchatProvider.currentUser!.id,
-                    Provider.of<CompanyProvider>(context, listen: false)
-                        .company!
-                        .ebchatkey!))
-            .catchError(() => print(
-                "LOG: EBChatChatLogger(message: User already getting connected)"));
-      }
+      await client.connectUserWithProvider(
+        eBchatProvider.currentUser!,
+        (_) => eBchatProvider.getStreamUserToken(
+          eBchatProvider.currentUser!.id,
+          widget.ebchatKey,
+        ),
+      );
     }
     if (eBchatProvider.globalChannel == null) {
-      await getUserOpenConversation();
+      await eBchatProvider.findAlfredChannel(context, false);
+      setState(() {
+        loading = false;
+        channelId = eBchatProvider.globalChannel!.id;
+      });
     }
-    setState(() {
-      loading = false;
-    });
+
     eBchatProvider.globalChannel!.frozenStream.listen((data) async {
       if (data) {
-        await getUserOpenConversation();
+        await eBchatProvider.findAlfredChannel(context, mounted);
+        setState(() {
+          channelId = eBchatProvider.globalChannel!.id;
+        });
       }
     });
-  }
-
-  Future<void> getUserOpenConversation() {
-    return Provider.of<NavigatorProvider>(context, listen: false)
-        .findAlfredChannel(context);
   }
 
   void navigate(index) {
@@ -119,14 +142,16 @@ class _SplashScreenState extends State<SplashScreen> {
     return !loading
         ? _buildScreen(selectedIndex)
         : Center(
-            child: EbutlerProgress(),
+            child: EbutlerProgress(companyLogo: widget.companyLogo),
           );
   }
 
   Widget _buildScreen(index) {
     switch (index) {
       case 0:
-        return ChatPageUser();
+        return ChatPageUser(
+          initialMessage: widget.initialMessage,
+        );
 
       case 1:
         return HomeScreenUser(
@@ -135,7 +160,7 @@ class _SplashScreenState extends State<SplashScreen> {
     }
 
     return Center(
-      child: EbutlerProgress(),
+      child: EbutlerProgress(companyLogo: widget.companyLogo),
     );
   }
 }

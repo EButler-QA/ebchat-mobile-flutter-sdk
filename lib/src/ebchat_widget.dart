@@ -9,14 +9,20 @@ import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 import 'lib/components/ebutler_progress.dart';
 
 class EBChatWidget extends StatefulWidget {
-  const EBChatWidget({
-    Key? key,
-    required this.ebchatToken,
-    required this.client,
-    required this.currentUser,
-    this.azureMapsApiKey,
-    this.arabicApp = false,
-  }) : super(key: key);
+  const EBChatWidget(
+      {Key? key,
+      required this.companyLogo,
+      required this.ebchatToken,
+      required this.client,
+      required this.currentUser,
+      this.azureMapsApiKey,
+      this.arabicApp = false,
+      this.initialMessage})
+      : super(key: key);
+
+  /// Company Logo To Be Displayed in SPLASH
+  /// if the companyLogo == 'default' means the Blue Mustache
+  final String companyLogo;
 
   ///EBCHAT company Token
   final String ebchatToken;
@@ -33,22 +39,24 @@ class EBChatWidget extends StatefulWidget {
   //Your azure maps key
   final String? azureMapsApiKey;
 
+  //Initial Message Related to BotFlow ( To be sent automatically)
+  final String? initialMessage;
+
   @override
-  _EBChatScreenState createState() => _EBChatScreenState();
+  State<EBChatWidget> createState() => _EBChatScreenState();
 }
 
 class _EBChatScreenState extends State<EBChatWidget> {
   final AppTheme appTheme = AppTheme();
   bool moduleInitalized = false;
+
   Future<void> initPackage(BuildContext mcontext) async {
-    CompanyProvider companyProvider =
-        Provider.of<CompanyProvider>(mcontext, listen: false);
-    NavigatorProvider eBchatProvider =
-        Provider.of<NavigatorProvider>(mcontext, listen: false);
+    final EBchatProvider eBchatProvider = mcontext.read<EBchatProvider>();
+    final CompanyProvider companyProvider = mcontext.read<CompanyProvider>();
     Config.setConfig(widget.arabicApp, widget.azureMapsApiKey);
-    await loadTextString();
     companyProvider.setCompany(mounted);
     eBchatProvider.setCurrentUser(widget.currentUser, mounted);
+    await loadTextString();
     return;
   }
 
@@ -60,26 +68,32 @@ class _EBChatScreenState extends State<EBChatWidget> {
           create: (_) => ThemeModel(),
         ),
         ChangeNotifierProvider(
-          create: (gContext) => NavigatorProvider(),
+          create: (gContext) => EBchatProvider(),
         ),
         ChangeNotifierProvider(
           create: (gContext) => CompanyProvider(),
         ),
       ],
-      child: Builder(builder: (context) {
-        return FutureBuilder(
+      child: Builder(
+        builder: (context) {
+          return FutureBuilder(
             future: initPackage(context),
             builder: (context, snapshot) {
               switch (snapshot.connectionState) {
                 case ConnectionState.waiting:
                   return Center(
-                    child: EbutlerProgress(),
+                    child: EbutlerProgress(companyLogo: widget.companyLogo),
                   );
                 default:
-                  return const SplashScreen();
+                  return SplashScreen(
+                      companyLogo: widget.companyLogo,
+                      initialMessage: widget.initialMessage,
+                      ebchatKey: widget.ebchatToken);
               }
-            });
-      }),
+            },
+          );
+        },
+      ),
     );
   }
 }

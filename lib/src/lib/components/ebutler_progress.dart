@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 class EbutlerProgress extends StatefulWidget {
+  final String companyLogo;
+  const EbutlerProgress({super.key,required this.companyLogo});
+
   @override
   State<StatefulWidget> createState() => _EbutlerProgress();
 }
@@ -13,7 +16,7 @@ class _EbutlerProgress extends State<EbutlerProgress>
   @override
   void initState() {
     _controller = AnimationController(
-        duration: const Duration(milliseconds: 700), vsync: this);
+        duration: const Duration(milliseconds: 700), vsync: this,);
     _controller.repeat(reverse: true);
     super.initState();
   }
@@ -34,12 +37,12 @@ class _EbutlerProgress extends State<EbutlerProgress>
           Align(
             child: ScaleTransition(
               scale: _tween.animate(CurvedAnimation(
-                  parent: _controller, curve: Curves.elasticOut)),
+                  parent: _controller, curve: Curves.elasticOut,),),
               child: SizedBox(
                 height: 100,
                 width: 100,
                 child:
-                    Image.asset(package: "ebchat", "assets/blueMustache.png"),
+                    widget.companyLogo == 'default'?Image.asset(package: "ebchat", "assets/blueMustache.png") :Image.asset(widget.companyLogo) ,
               ),
             ),
           ),

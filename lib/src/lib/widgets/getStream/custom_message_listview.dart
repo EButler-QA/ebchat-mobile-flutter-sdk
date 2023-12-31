@@ -3,12 +3,13 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:ebchat/src/lib/Theme/my_theme.dart';
-import 'package:ebchat/src/lib/widgets/getStream/custom_message_widget.dart'
-    as cmw;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:stream_chat_flutter/src/misc/swipeable.dart';
 import 'package:stream_chat_flutter/scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
+import 'package:ebchat/src/lib/widgets/getStream/custom_message_widget.dart'
+    as cmw;
 
 /// Widget builder for message
 /// [defaultMessageWidget] is the default [CustomMessageWidget] configuration
@@ -592,11 +593,10 @@ class _MessageListViewState extends State<CustomMessageListView> {
                       message = messages[i - 2];
                       nextMessage = messages[i - 1];
                     }
-                    if (!Jiffy.parseFromDateTime(message.createdAt.toLocal())
-                        .isSame(
-                            Jiffy.parseFromDateTime(
-                                nextMessage.createdAt.toLocal()),
-                            unit: Unit.day)) {
+                    if (!Jiffy.parseFromDateTime(message.createdAt.toLocal()).isSame(
+                      Jiffy.parseFromDateTime(nextMessage.createdAt.toLocal()),
+                      unit: Unit.day
+                    )) {
                       final divider = widget.dateDividerBuilder != null
                           ? widget.dateDividerBuilder!(
                               nextMessage.createdAt.toLocal(),
@@ -610,8 +610,7 @@ class _MessageListViewState extends State<CustomMessageListView> {
                       return divider;
                     }
                     final timeDiff =
-                        Jiffy.parseFromDateTime(nextMessage.createdAt.toLocal())
-                            .diff(
+                        Jiffy.parseFromDateTime(nextMessage.createdAt.toLocal()).diff(
                       Jiffy.parseFromDateTime(message.createdAt.toLocal()),
                       unit: Unit.minute,
                     );
@@ -1257,7 +1256,7 @@ class _MessageListViewState extends State<CustomMessageListView> {
         decoration: const BoxDecoration(),
         clipBehavior: Clip.hardEdge,
         child: Swipeable(
-          onSwiped: (direction) => () {
+          onSwiped: (direction) =>  () {
             FocusScope.of(context).unfocus();
             widget.onMessageSwiped?.call(message);
           },
