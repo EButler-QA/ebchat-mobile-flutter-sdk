@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:test/ebchat_provider.dart';
+import 'package:internalsdkexample/ebchat_provider.dart';
 
 class AsyncButtonWidget extends StatefulWidget {
   const AsyncButtonWidget(
@@ -30,7 +30,7 @@ class _AsyncButtonWidgetState extends State<AsyncButtonWidget> {
                   await provider.getEbchatClient(widget.chatKey!);
                   await context
                       .read<EbchatProvider>()
-                      .connectUserToEbchat(context, EbchatProvider().ebchatKey);
+                      .connectUserToEbchat(context, EbchatProvider().key);
                   provider.navigateEbchat(true);
                 } else if (widget.channelId != null) {
                   await provider.handlStreamNotification(
@@ -54,7 +54,7 @@ class _AsyncButtonWidgetState extends State<AsyncButtonWidget> {
                     const SizedBox(width: 7),
                     Text(widget.buttonText,
                         style: const TextStyle(
-                            color: Colors.white,
+                            color: Colors.black,
                             fontWeight: FontWeight.w500,
                             fontSize: 13))
                   ],

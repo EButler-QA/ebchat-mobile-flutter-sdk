@@ -1004,7 +1004,7 @@ class _MessageListViewState extends State<CustomMessageListView> {
       messageTheme: isMyMessage
           ? _streamTheme.ownMessageTheme
           : _streamTheme.otherMessageTheme,
-      onReturnAction: (action) {
+     /* onReturnAction: (action) {
         switch (action) {
           case ReturnActionType.none:
             break;
@@ -1013,7 +1013,7 @@ class _MessageListViewState extends State<CustomMessageListView> {
             widget.onMessageSwiped?.call(message);
             break;
         }
-      },
+      },*/
       onMessageTap: (message) {
         if (widget.onMessageTap != null) {
           widget.onMessageTap!(message);
@@ -1213,7 +1213,7 @@ class _MessageListViewState extends State<CustomMessageListView> {
       messageTheme: isMyMessage
           ? _streamTheme.ownMessageTheme
           : _streamTheme.otherMessageTheme,
-      onReturnAction: (action) {
+      /*onReturnAction: (action) {
         switch (action) {
           case ReturnActionType.none:
             break;
@@ -1222,7 +1222,7 @@ class _MessageListViewState extends State<CustomMessageListView> {
             widget.onMessageSwiped?.call(message);
             break;
         }
-      },
+      },*/
       onMessageTap: (message) {
         if (widget.onMessageTap != null) {
           widget.onMessageTap!(message);

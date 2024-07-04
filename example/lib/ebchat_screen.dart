@@ -1,7 +1,7 @@
 import 'package:ebchat/ebchat.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:test/ebchat_provider.dart';
+import 'package:internalsdkexample/ebchat_provider.dart';
 
 class EBChatScreen extends StatefulWidget {
   final String eButlerEBChatKey;

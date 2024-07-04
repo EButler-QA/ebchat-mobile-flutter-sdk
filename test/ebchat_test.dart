@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:ebchat/ebchat.dart';
 
 void main() {
   test('adds one to input values', () {

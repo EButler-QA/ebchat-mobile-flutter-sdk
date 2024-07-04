@@ -55,12 +55,12 @@ class _SetvalueDialogState extends State<UserInfoDialog> {
         bytes: bytes,
       );
       final mimeType =
-          file.name?.mimeType ?? file.path!.split('/').last.mimeType;
+          file.name?.mediaType?.mimeType ?? file.path!.split('/').last.mediaType?.mimeType;
 
       final extraDataMap = <String, Object>{};
 
-      if (mimeType?.subtype != null) {
-        extraDataMap['mime_type'] = mimeType!.subtype.toLowerCase();
+      if (mimeType != null) {
+        extraDataMap['mime_type'] = mimeType.toLowerCase();
       }
 
       extraDataMap['file_size'] = file.size!;

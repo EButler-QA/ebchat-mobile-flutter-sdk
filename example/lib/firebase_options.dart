@@ -50,20 +50,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'your-android-api-key',
-    appId: 'your-android-app-id',
-    messagingSenderId: 'your-android-messaging-sender-id',
-    projectId: 'your-project-id',
-    storageBucket: 'your-android-storage-bucket',
+    apiKey: 'AIzaSyCuMPH5M3vK5y7r_1Gim3WT2oC0AohIJqU',
+    appId: '1:735611059462:android:15fb71cd8152e180ebf287',
+    messagingSenderId: '735611059462',
+    projectId: 'tenx-5564f',
+    storageBucket: 'tenx-5564f.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'your-ios-api-key',
-    appId: 'your-ios-app-id',
-    messagingSenderId: 'your-ios-messaging-sender-id',
-    projectId: 'your-project-id',
-    storageBucket: 'your-ios-storage-bucket',
-    androidClientId: 'your-android-client-id',
-    iosBundleId: 'your-ios-bundle-id',
+    apiKey: 'AIzaSyAlyozrRpDbiZTGff0KeVb7w2R7IeQnfAM',
+    appId: '1:735611059462:ios:079b2f7d4ac319c9ebf287',
+    messagingSenderId: '735611059462',
+    projectId: 'tenx-5564f',
+    storageBucket: 'tenx-5564f.appspot.com',
+    androidClientId: '735611059462-63f34ttk6965nf04v3kn15k721ma522r.apps.googleusercontent.com',
+    iosBundleId: 'com.ebchat.internalsdkexample',
   );
 }

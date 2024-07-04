@@ -389,7 +389,7 @@ class StreamCustomMessageInputState extends State<StreamCustomMessageInput>
       _effectiveController.message.quotedMessage != null;
 
   bool get _isEditing =>
-      _effectiveController.message.status != MessageSendingStatus.sending;
+      _effectiveController.message.state != MessageState.sending;
 
   BoxBorder? _draggingBorder;
 
@@ -1212,7 +1212,7 @@ class StreamCustomMessageInputState extends State<StreamCustomMessageInput>
                         borderRadius: BorderRadius.circular(10),
                         child: StreamFileAttachment(
                           message: Message(), // dummy message
-                          attachment: e,
+                          file: e,
                           constraints: BoxConstraints.loose(
                             Size(
                               MediaQuery.of(context).size.width * 0.65,
@@ -1345,7 +1345,8 @@ class StreamCustomMessageInputState extends State<StreamCustomMessageInput>
       case 'video':
         return Stack(
           children: [
-            StreamVideoThumbnailImage(
+
+            /*StreamVideoThumbnailImage(
               constraints: BoxConstraints.loose(
                 const Size(
                   104,
@@ -1353,7 +1354,7 @@ class StreamCustomMessageInputState extends State<StreamCustomMessageInput>
                 ),
               ),
               video: attachment.file?.path ?? attachment.assetUrl,
-            ),
+            ),*/
             Positioned(
               left: 8,
               bottom: 10,

@@ -134,7 +134,7 @@ class _ChatPageUserState extends State<ChatPageUser> {
         //  text: "",
         createdAt: initalMessage.createdAt,
         user: client.state.currentUser,
-        status: MessageSendingStatus.sending,
+        state: MessageState.sending,
         attachments: initalMessage.attachments.map(
           (it) {
             if (it.uploadState.isSuccess) return it;

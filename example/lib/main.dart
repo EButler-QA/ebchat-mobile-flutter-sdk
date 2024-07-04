@@ -3,10 +3,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:test/components/asyncButtonWidget.dart';
-import 'package:test/ebchat_provider.dart';
-import 'package:test/ebchat_screen.dart';
-import 'package:test/firebase_options.dart';
+import 'package:internalsdkexample/components/asyncButtonWidget.dart';
+import 'package:internalsdkexample/ebchat_provider.dart';
+import 'package:internalsdkexample/ebchat_screen.dart';
+import 'package:internalsdkexample/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,7 +30,7 @@ void main() async {
 
 initNotifications() async {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
-  NotificationSettings settings = await messaging.requestPermission(
+  await messaging.requestPermission(
     alert: true,
     announcement: false,
     badge: true,
@@ -86,14 +86,15 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    context
-        .read<EbchatProvider>()
-        .setEbchatUser(User(id: "john", name: "jack", extraData: const {
-          //TODO: THIS FIELD IS REQUIRED
-          "email": "johnjack@ebchat.com",
-          //TODO: you can store your user extrats attribute
-          "phone": "9741111111",
-        }));
+    context.read<EbchatProvider>().setEbchatUser(User(
+            id: "testingInternalSdk",
+            name: "testingInternalSdk",
+            extraData: const {
+              //TODO: THIS FIELD IS REQUIRED
+              "email": "testingInternalSdk@e-butler.com",
+              //TODO: you can store your user extrats attribute
+              "phone": "9742228329322",
+            }));
   }
 
   @override
@@ -104,8 +105,8 @@ class _MyHomePageState extends State<MyHomePage> {
         primarySwatch: Colors.blue,
       ),
       home: EBChatScreen(
-          key: ValueKey(context.read<EbchatProvider>().ebchatKey),
-          eButlerEBChatKey: context.read<EbchatProvider>().ebchatKey),
+          key: ValueKey(context.read<EbchatProvider>().key),
+          eButlerEBChatKey: context.read<EbchatProvider>().key),
       builder: (context, child) {
         return Scaffold(
           body: context.watch<EbchatProvider>().ebchatClient != null &&
@@ -135,11 +136,9 @@ class _MyHomePageState extends State<MyHomePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             AsyncButtonWidget(
-                chatKey: context.read<EbchatProvider>().ebchatKey,
-                buttonText: "Your company"),
+                chatKey: context.read<EbchatProvider>().key,
+                buttonText: "ABRAJ BAY RECEPTION"),
             const SizedBox(height: 10),
-            const AsyncButtonWidget(
-                channelId: "thechannelId", buttonText: "Detect by channel"),
           ],
         );
       },

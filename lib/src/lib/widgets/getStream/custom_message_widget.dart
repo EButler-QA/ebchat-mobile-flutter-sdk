@@ -74,7 +74,7 @@ class CustomMessageWidget extends StatefulWidget {
     this.textBuilder,
     this.bottomRowBuilder,
     this.deletedBottomRowBuilder,
-    this.onReturnAction,
+    //this.onReturnAction,
     this.customAttachmentBuilders,
     this.padding,
     this.textPadding = const EdgeInsets.symmetric(
@@ -107,7 +107,7 @@ class CustomMessageWidget extends StatefulWidget {
                 child: WrapAttachmentWidget(
                   attachmentWidget: Material(
                     color: messageTheme.messageBackgroundColor,
-                    child: StreamImageGroup(
+                    child: null,/*StreamImageGroup(
                       constraints: BoxConstraints(
                         maxWidth: 400,
                         minWidth: 400,
@@ -119,33 +119,39 @@ class CustomMessageWidget extends StatefulWidget {
                       onShowMessage: onShowMessage,
                       // onReturnAction: onReturnAction,
                       onAttachmentTap: onAttachmentTap,
-                    ),
+                    ),*/
                   ),
                   attachmentShape: border,
                 ),
               );
             }
 
-            return WrapAttachmentWidget(
-              attachmentWidget: StreamImageAttachment(
-                attachment: attachments[0],
-                message: message,
-                messageTheme: messageTheme,
-                constraints: BoxConstraints.loose(
-                  Size(
-                    mediaQueryData.size.width * 0.8,
-                    mediaQueryData.size.height * 0.3,
-                  ),
-                ),
-                onShowMessage: onShowMessage,
-                // onReturnAction: onReturnAction,
-                onAttachmentTap: onAttachmentTap != null
+            return GestureDetector(
+
+              child: GestureDetector(
+                onTap: onAttachmentTap != null
                     ? () {
-                        onAttachmentTap.call(message, attachments[0]);
-                      }
+                  onAttachmentTap.call(message, attachments[0]);
+                }
                     : null,
+                child: WrapAttachmentWidget(
+                  attachmentWidget: StreamImageAttachment(
+                    image: attachments[0],
+                    message: message,
+                    //messageTheme: messageTheme,
+                    constraints: BoxConstraints.loose(
+                      Size(
+                        mediaQueryData.size.width * 0.8,
+                        mediaQueryData.size.height * 0.3,
+                      ),
+                    ),
+                    //onShowMessage: onShowMessage,
+                    // onReturnAction: onReturnAction,
+
+                  ),
+                  attachmentShape: border,
+                ),
               ),
-              attachmentShape: border,
             );
           },
           'video': (context, message, attachments) {
@@ -157,22 +163,25 @@ class CustomMessageWidget extends StatefulWidget {
               attachmentWidget: Column(
                 children: attachments.map((attachment) {
                   final mediaQueryData = MediaQuery.of(context);
-                  return StreamVideoAttachment(
-                    attachment: attachment,
-                    messageTheme: messageTheme,
-                    constraints: BoxConstraints(
-                      maxWidth: 400,
-                      minWidth: 400,
-                      maxHeight: mediaQueryData.size.height * 0.3,
-                    ),
-                    message: message,
-                    onShowMessage: onShowMessage,
-                    // onReturnAction: onReturnAction,
-                    onAttachmentTap: onAttachmentTap != null
+                  return GestureDetector(
+                    onTap: onAttachmentTap != null
                         ? () {
-                            onAttachmentTap(message, attachment);
-                          }
+                      onAttachmentTap(message, attachment);
+                    }
                         : null,
+                    child: StreamVideoAttachment(
+                      video: attachment,
+                     // messageTheme: messageTheme,
+                      constraints: BoxConstraints(
+                        maxWidth: 400,
+                        minWidth: 400,
+                        maxHeight: mediaQueryData.size.height * 0.3,
+                      ),
+                      message: message,
+                     // onShowMessage: onShowMessage,
+                      // onReturnAction: onReturnAction,
+
+                    ),
                   );
                 }).toList(),
               ),
@@ -188,21 +197,24 @@ class CustomMessageWidget extends StatefulWidget {
               attachmentWidget: Column(
                 children: attachments.map((attachment) {
                   final mediaQueryData = MediaQuery.of(context);
-                  return StreamGiphyAttachment(
-                    attachment: attachment,
-                    message: message,
-                    constraints: BoxConstraints(
-                      maxWidth: 400,
-                      minWidth: 400,
-                      maxHeight: mediaQueryData.size.height * 0.3,
-                    ),
-                    onShowMessage: onShowMessage,
-                    // onReturnAction: onReturnAction,
-                    onAttachmentTap: onAttachmentTap != null
+                  return GestureDetector(
+                    onTap: onAttachmentTap != null
                         ? () {
-                            onAttachmentTap(message, attachment);
-                          }
+                      onAttachmentTap(message, attachment);
+                    }
                         : null,
+                    child: StreamGiphyAttachment(
+                      giphy: attachment,
+                      message: message,
+                      constraints: BoxConstraints(
+                        maxWidth: 400,
+                        minWidth: 400,
+                        maxHeight: mediaQueryData.size.height * 0.3,
+                      ),
+                      //onShowMessage: onShowMessage,
+                      // onReturnAction: onReturnAction,
+
+                    ),
                   );
                 }).toList(),
               ),
@@ -222,22 +234,26 @@ class CustomMessageWidget extends StatefulWidget {
               children: attachments
                   .map<Widget>((attachment) {
                     final mediaQueryData = MediaQuery.of(context);
-                    return WrapAttachmentWidget(
-                      attachmentWidget: StreamFileAttachment(
-                        message: message,
-                        attachment: attachment,
-                        constraints: BoxConstraints(
-                          maxWidth: 400,
-                          minWidth: 400,
-                          maxHeight: mediaQueryData.size.height * 0.3,
+                    return GestureDetector(
+                      onTap: onAttachmentTap != null
+                          ? () {
+                        onAttachmentTap(message, attachment);
+                      }
+                          : null,
+                      child: WrapAttachmentWidget(
+                        attachmentWidget: StreamFileAttachment(
+                          message: message,
+                          file: attachment,
+                          constraints: BoxConstraints(
+                            maxWidth: 400,
+                            minWidth: 400,
+                            maxHeight: mediaQueryData.size.height * 0.3,
+                          ),
+
                         ),
-                        onAttachmentTap: onAttachmentTap != null
-                            ? () {
-                                onAttachmentTap(message, attachment);
-                              }
-                            : null,
+                        attachmentShape: border,
+
                       ),
-                      attachmentShape: border,
                     );
                   })
                   .insertBetween(
@@ -351,7 +367,7 @@ class CustomMessageWidget extends StatefulWidget {
   final ShowMessageCallback? onShowMessage;
 
   /// Handle return actions like reply message
-  final ValueChanged<ReturnActionType>? onReturnAction;
+  //final ValueChanged<ReturnActionType>? onReturnAction;
 
   /// If true show the users username next to the timestamp of the message
   final bool showUsername;
@@ -442,7 +458,7 @@ class CustomMessageWidget extends StatefulWidget {
     bool? showReactionPickerIndicator,
     List<Read>? readList,
     ShowMessageCallback? onShowMessage,
-    ValueChanged<ReturnActionType>? onReturnAction,
+    //ValueChanged<ReturnActionType>? onReturnAction,
     bool? showUsername,
     bool? showTimestamp,
     bool? showReplyMessage,
@@ -500,7 +516,7 @@ class CustomMessageWidget extends StatefulWidget {
         showReactionPickerIndicator:
             showReactionPickerIndicator ?? this.showReactionPickerIndicator,
         onShowMessage: onShowMessage ?? this.onShowMessage,
-        onReturnAction: onReturnAction ?? this.onReturnAction,
+        //onReturnAction: onReturnAction ?? this.onReturnAction,
         showUsername: showUsername ?? this.showUsername,
         showTimestamp: showTimestamp ?? this.showTimestamp,
         showReplyMessage: showReplyMessage ?? this.showReplyMessage,
@@ -543,13 +559,13 @@ class _MessageWidgetState extends State<CustomMessageWidget>
 
   bool get hasQuotedMessage => widget.message.quotedMessage != null;
 
-  bool get isSendFailed => widget.message.status == MessageSendingStatus.failed;
+  bool get isSendFailed => widget.message.state == MessageState.failed(state: FailedState.sendingFailed());
 
   bool get isUpdateFailed =>
-      widget.message.status == MessageSendingStatus.failed_update;
+      widget.message.state == MessageState.failed(state: FailedState.updatingFailed());
 
   bool get isDeleteFailed =>
-      widget.message.status == MessageSendingStatus.failed_delete;
+      widget.message.state == MessageState.failed(state: FailedState.deletingFailed());
 
   bool get isFailedState => isSendFailed || isUpdateFailed || isDeleteFailed;
 
@@ -1011,9 +1027,10 @@ class _MessageWidgetState extends State<CustomMessageWidget>
     Attachment fixed =
         urlAttachment.copyWith(titleLink: urlAttachment.ogScrapeUrl);
     return StreamUrlAttachment(
+      message: widget.message,
       urlAttachment: fixed,
       hostDisplayName: hostDisplayName,
-      textPadding: widget.textPadding,
+      //textPadding: widget.textPadding,
       messageTheme: widget.messageTheme,
     );
   }
@@ -1089,7 +1106,7 @@ class _MessageWidgetState extends State<CustomMessageWidget>
             showSendingIndicator: false,
             padding: const EdgeInsets.all(0),
             showReactionPickerIndicator: widget.showReactions &&
-                (widget.message.status == MessageSendingStatus.sent),
+                (widget.message.state == MessageState.sent),
             showPinHighlight: false,
             showUserAvatar:
                 widget.message.user!.id == channel.client.state.currentUser!.id
@@ -1152,7 +1169,7 @@ class _MessageWidgetState extends State<CustomMessageWidget>
             showSendingIndicator: false,
             padding: const EdgeInsets.all(0),
             showReactionPickerIndicator: widget.showReactions &&
-                (widget.message.status == MessageSendingStatus.sent),
+                (widget.message.state == MessageState.sent),
             showPinHighlight: false,
             showUserAvatar:
                 widget.message.user!.id == channel.client.state.currentUser!.id
@@ -1215,7 +1232,7 @@ class _MessageWidgetState extends State<CustomMessageWidget>
 
   void onLongPress(BuildContext context) {
     if (widget.message.isEphemeral ||
-        widget.message.status == MessageSendingStatus.sending) {
+        widget.message.state == MessageState.sending) {
       return;
     }
 
@@ -1233,8 +1250,8 @@ class _MessageWidgetState extends State<CustomMessageWidget>
     final memberCount = StreamChannel.of(context).channel.memberCount ?? 0;
 
     if (hasNonUrlAttachments &&
-        (message.status == MessageSendingStatus.sending ||
-            message.status == MessageSendingStatus.updating)) {
+        (message.state == MessageState.sending ||
+            message.state == MessageState.updating)) {
       final totalAttachments = message.attachments.length;
       final uploadRemaining =
           message.attachments.where((it) => !it.uploadState.isSuccess).length;
@@ -1392,16 +1409,16 @@ class _MessageWidgetState extends State<CustomMessageWidget>
 
   void retryMessage(BuildContext context) {
     final channel = StreamChannel.of(context).channel;
-    if (widget.message.status == MessageSendingStatus.failed) {
+    if (widget.message.state == const MessageState.failed(state: FailedState.sendingFailed())) {
       channel.sendMessage(widget.message);
       return;
     }
-    if (widget.message.status == MessageSendingStatus.failed_update) {
+    if (widget.message.state == const MessageState.failed(state: FailedState.updatingFailed())) {
       channel.updateMessage(widget.message);
       return;
     }
 
-    if (widget.message.status == MessageSendingStatus.failed_delete) {
+    if (widget.message.state == const MessageState.failed(state: FailedState.deletingFailed())) {
       channel.deleteMessage(widget.message);
       return;
     }

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>735611059462-63f34ttk6965nf04v3kn15k721ma522r.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyAlyozrRpDbiZTGff0KeVb7w2R7IeQnfAM</string>
+	<key>GCM_SENDER_ID</key>
+	<string>735611059462</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.ebchat.internalsdkexample</string>
+	<key>PROJECT_ID</key>
+	<string>tenx-5564f</string>
+	<key>STORAGE_BUCKET</key>
+	<string>tenx-5564f.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:735611059462:ios:079b2f7d4ac319c9ebf287</string>
+</dict>
+</plist>
